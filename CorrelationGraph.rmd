@@ -1,0 +1,34 @@
+---
+output: pdf_document
+---
+```{r}
+library(corrplot)
+
+news_train <- read.csv("/Users/Darshan/Documents/CS 7280 Stats/Project/Data/Cleaned_Train.csv", header = TRUE)
+
+train_url <- news_train$url
+train_timedelta <- news_train$timedelta
+
+news_train$timedelta <- NULL
+news_train$url <- NULL
+news_train_matrix <- as.matrix(news_train)
+news_train_cor <- cor(news_train_matrix)
+
+corrplot(news_train_cor, type  = "lower", diag = FALSE, tl.cex=0.6)
+
+```
+
+```{r}
+
+round(cor(news_train[,c(3:4)]), digits=3)
+news_train$n_non_stop_unique_tokens <- NULL
+
+round(cor(news_train[,c(17:23)]), digits=3)
+
+```
+
+```{r}
+
+news_train$kw_min_min <- NULL
+
+```
