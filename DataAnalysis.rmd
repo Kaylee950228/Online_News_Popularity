@@ -1,0 +1,164 @@
+
+
+```{r}
+suppressMessages(library(dplyr))
+library(ggplot2)
+library(reshape2)
+news_train <- read.csv("/Users/Darshan/Documents/CS 7280 Stats/Project/Data/Train.csv", header = TRUE)
+
+train_url <- news_train$url
+train_timedelta <- news_train$timedelta
+
+news_train$timedelta <- NULL
+news_train$url <- NULL
+
+```
+
+##### Number of Tokens in Title
+Looks close to normal distribution with very few outliers
+```{r}
+hist(news_train$n_tokens_title)
+boxplot(news_train$n_tokens_title)
+```
+
+
+Articles with zero content, image and video
+
+Discussion with Professor: Whether to remove these data points or not
+```{r}
+
+news_without_civ <- filter(news_train, n_tokens_content==0, num_imgs==0, num_videos==0)
+nrow(news_without_civ)
+news_without_c <- filter(news_train, n_tokens_content==0)
+nrow(news_without_c)
+news_train <- subset(news_train, n_tokens_content!=0)
+```
+
+One wrong/outlier value removed from n_unique_token
+```{r}
+boxplot(news_train$n_unique_tokens)
+
+nrow(news_train %>% filter(n_unique_tokens > 1))
+news_train <- news_train[news_train$n_unique_tokens <= 1,]
+boxplot(news_train$n_unique_tokens)
+```
+
+
+If 928 data point which has zero content are removed then this feature has constant values so we can delete it.
+```{r}
+graph <- hist(news_train$n_non_stop_words)
+value <- news_train[news_train$n_non_stop_words != 0,]$n_non_stop_words
+sd(value)
+
+news_train$n_non_stop_words <- NULL
+```
+
+928 features which has zero number of content are removed for simplicity
+news_train <- news_train[news_train$n_tokens_content != 0,]
+
+
+too many outliers in number of links and few outliers in number of self reference in the news article
+```{r}
+hist(news_train$num_hrefs)
+boxplot(news_train$num_hrefs)
+hist(news_train$num_self_hrefs)
+boxplot(news_train$num_self_hrefs)
+```
+
+
+Number of images
+Median value 1
+6158 values are outliers (19.4%)
+```{r}
+summary(news_train$num_imgs)
+nrow(filter(news_train, num_imgs > 8.5))
+```
+
+
+Number of videos
+Median value 1
+2341 values are outliers (7%)
+```{r}
+boxplot(news_train$num_videos)
+nrow(filter(news_train, num_videos > 2.5))
+```
+
+Average length of the words in the content
+Few outliers which has value zero
+```{r}
+boxplot(news_train$average_token_length)
+```
+
+
+Number of keywords in the metadata
+Seems okay
+```{r}
+boxplot(news_train$num_keywords)
+```
+
+
+```{r}
+nrow(filter(news_train, data_channel_is_lifestyle == 1))
+nrow(filter(news_train, data_channel_is_entertainment == 1))
+nrow(filter(news_train, data_channel_is_bus == 1))
+nrow(filter(news_train, data_channel_is_socmed == 1))
+nrow(filter(news_train, data_channel_is_tech == 1))
+nrow(filter(news_train, data_channel_is_world == 1))
+```
+
+Worst keyword.  Too many outliers and contains "-1" as value. Which does not make sense.
+
+```{r}
+summary(news_train$kw_min_min)
+summary(news_train$kw_avg_min)
+summary(news_train$kw_max_min)
+```
+
+self_reference_min_shares
+All the variables have many outliers
+```{r}
+summary(news_train$self_reference_min_shares)
+summary(news_train$self_reference_avg_shares)
+summary(news_train$self_reference_max_shares)
+```
+
+```{r}
+nrow(filter(news_train, weekday_is_monday == 1))
+nrow(filter(news_train, weekday_is_tuesday == 1))
+nrow(filter(news_train, weekday_is_wednesday == 1))
+nrow(filter(news_train, weekday_is_thursday == 1))
+nrow(filter(news_train, weekday_is_friday == 1))
+nrow(filter(news_train, weekday_is_saturday == 1))
+nrow(filter(news_train, weekday_is_sunday == 1))
+nrow(filter(news_train, is_weekend == 1))
+```
+
+LDA features looks good as of now
+```{r}
+boxplot(news_train$LDA_00)
+boxplot(news_train$LDA_01)
+boxplot(news_train$LDA_02)
+boxplot(news_train$LDA_03)
+boxplot(news_train$LDA_04)
+```
+
+
+Looks perfect
+```{r}
+boxplot(news_train$global_subjectivity)
+hist(news_train$global_subjectivity)
+```
+
+
+Looks perfect
+```{r}
+boxplot(news_train$global_sentiment_polarity)
+hist(news_train$global_sentiment_polarity)
+```
+
+
+```{r}
+boxplot(news_train$global_rate_positive_words)
+boxplot(news_train$global_rate_negative_words)
+```
+
