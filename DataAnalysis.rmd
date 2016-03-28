@@ -110,9 +110,24 @@ Worst keyword.  Too many outliers and contains "-1" as value. Which does not mak
 
 ```{r}
 summary(news_train$kw_min_min)
-summary(news_train$kw_avg_min)
-summary(news_train$kw_max_min)
+news_train$kw_min_min <- NULL
 ```
+
+```{r}
+summary(news_train$kw_avg_min)
+# 624 datapoints contains value -1. Cleaning missing value value by median 
+#TODO 238.0
+nrow(filter(news_train, kw_avg_min < 0))
+
+summary(news_train$kw_max_min)
+
+summary(news_train$kw_min_avg)
+nrow(filter(news_train, kw_min_avg < 0))
+# Replace them with median
+# TODO
+
+```
+
 
 self_reference_min_shares
 All the variables have many outliers
@@ -162,3 +177,11 @@ boxplot(news_train$global_rate_positive_words)
 boxplot(news_train$global_rate_negative_words)
 ```
 
+
+```{r}
+library(car)
+p<-powerTransform(news_train$shares)
+y<-bcPower(news_train$shares,p$lambda)
+qqnorm(y)
+qqnorm(y) + qqline(y)
+```

@@ -22,3 +22,7 @@ log_target <- log(target)
 boxplot(log_target)
 boxplot(target)
 
+news_train <- subset(news_train, n_tokens_content!=0)
+news_train$n_non_stop_words <- NULL
+write.csv("/Users/Darshan/Documents/CS 7280 Stats/Project/Data/Cleaned_Train.csv", row.names = FALSE, x = news_train)
+
