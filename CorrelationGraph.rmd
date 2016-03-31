@@ -1,6 +1,3 @@
----
-output: pdf_document
----
 ```{r}
 library(corrplot)
 
@@ -29,6 +26,35 @@ round(cor(news_train[,c(17:23)]), digits=3)
 
 ```{r}
 
-news_train$kw_min_min <- NULL
+#news_train$kw_min_min <- NULL
+
+```
+
+```{r}
+# self_reference_avg_sharess has 0.829 colinearity with self_reference_min_sharess and 0.848 colinearity with self_reference_max_sharess
+round(cor(news_train[,c(26:28)]), digits=3)
+news_train$self_reference_avg_sharess <- NULL
+# Option 
+
+
+```
+
+```{r}
+#Correlation between rate_positive_words and rate_negative_words is -0.997
+round(cor(news_train[,c(46:48)]), digits=3)
+
+news_train$rate_negative_words <- NULL
+```
+
+```{r}
+
+# LDA_01 has 0.611 correlation with data_channel_is_entertainment
+# LDA_00 has 0.774 correlation with data_channel_is_bus
+# LDA_00 has 0.191 with data_channel_is_socmed
+# LDA_04 has 0.751 correlation with data_channel_is_tech
+# LDA_02 has 0.835 correlation with data_channel_is_world
+
+# is_weekend has 0.658 correlation with weekday_is_saturday 
+# is_weekend has 0.705 correlation with weekday_is_sunday
 
 ```
