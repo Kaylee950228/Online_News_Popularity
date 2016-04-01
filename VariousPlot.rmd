@@ -1,0 +1,73 @@
+```{r}
+library(car)
+library(ggplot2)
+library(gridExtra)
+library(cowplot)
+
+news_train <- read.csv("/Users/Darshan/Documents/CS 7280 Stats/Project/Data/Cleaned_Cor_Train.csv", header = TRUE)
+
+p<-powerTransform(news_train$shares)
+shares_transformed <-bcPower(news_train$shares,p$lambda)
+
+# Shares vs Data Channel
+news_train$data_channel = factor(news_train$data_channel, levels = 0:6,
+  labels = c("No Channel", "Lifestyle", "Entertainment", "Business", "Social Media", "Tech", "World")
+)
+
+news_train$cat_dow = factor(news_train$cat_dow, levels = 1:7,
+  labels = c("Monday", "Tuesday", "Wednesday", "Thurday", "Friday", "Saturday", "Sunday")
+)
+
+news_train$is_weekend = factor(news_train$is_weekend, levels = 0:1,
+  labels = c("No", "Yes")
+)
+
+
+ggplot(news_train, aes(data_channel, shares_transformed)) + geom_boxplot(aes(fill = data_channel)) +  ylab("Shares") + xlab("Data Channels")
+
+
+ggplot(news_train, aes(data_channel, shares_transformed)) + geom_boxplot(aes(fill = data_channel)) +  coord_flip() +ylab("Shares") + xlab("Data Channels")
+
+ggplot(news_train, aes(is_weekend, shares_transformed)) + geom_boxplot(aes(fill = is_weekend)) +  coord_flip() +ylab("Shares") + xlab("Is Weekend?")
+
+ggplot(news_train, aes(cat_dow, shares_transformed)) + geom_boxplot(aes(fill = cat_dow))  +ylab("Shares") + xlab("Day of week")
+
+p1 <- ggplot(news_train, aes(data_channel, LDA_00)) + geom_boxplot(aes(fill = data_channel)) +  ylab("LDA_00") + xlab("Data Channels") + theme(legend.position="none")
+#coord_flip() +
+p2 <- ggplot(news_train, aes(data_channel, LDA_01)) + geom_boxplot(aes(fill = data_channel)) + ylab("LDA_01") + xlab("Data Channels") + theme(legend.position="none")
+
+p3 <- ggplot(news_train, aes(data_channel, LDA_02)) + geom_boxplot(aes(fill = data_channel))  + ylab("LDA_02") + xlab("Data Channels") + theme(legend.position="none")
+
+p4 <- ggplot(news_train, aes(data_channel, LDA_03)) + geom_boxplot(aes(fill = data_channel)) + ylab("LDA_03") + xlab("Data Channels") + theme(legend.position="none")
+
+p5 <- ggplot(news_train, aes(data_channel, LDA_04)) + geom_boxplot(aes(fill = data_channel)) + ylab("LDA_04") + xlab("Data Channels") + theme(legend.position="none")
+
+grid.arrange(p1, p2, p3, p4, p5, ncol=1, nrow=5)
+
+```
+
+
+```{r}
+ignored_column_names <- c("url", "timedelta", "data_channel_is_lifestyle",
+                          "data_channel_is_entertainment", "data_channel_is_bus",
+                          "data_channel_is_world", "data_channel_is_socmed",
+                          "data_channel_is_tech", "weekday_is_monday", "weekday_is_tuesday", "weekday_is_wednesday", "weekday_is_thursday", "weekday_is_friday",
+                          "weekday_is_saturday", "weekday_is_sunday", "is_weekend", "shares", "data_channel", "cat_dow")
+column_names <- names(news_train)
+needed_columns <- setdiff(column_names,ignored_column_names)
+
+data_channel<-"data_channel"
+
+for(i in seq_along(needed_columns)){
+  p <- ggplot(news_train,aes_string(x = data_channel, y=needed_columns[i])) + geom_boxplot(aes(fill = data_channel))  + coord_flip() + xlab("Data Channels") + theme(legend.position="none")
+  plot(p)
+}
+
+cat_dow<-"cat_dow"
+
+for(i in seq_along(needed_columns)){
+  p <- ggplot(news_train,aes_string(x = cat_dow, y=needed_columns[i])) + geom_boxplot(aes(fill = data_channel))  + coord_flip() + xlab("Day of week") + theme(legend.position="none")
+  plot(p)
+}
+
+```
