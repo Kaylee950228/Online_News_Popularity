@@ -3,6 +3,7 @@ library(car)
 library(ggplot2)
 library(gridExtra)
 library(cowplot)
+library(leaps)
 
 news_train <- read.csv("/Users/Darshan/Documents/CS 7280 Stats/Project/Data/Cleaned_Cor_Train.csv", header = TRUE)
 
@@ -56,17 +57,24 @@ ignored_column_names <- c("url", "timedelta", "data_channel_is_lifestyle",
 column_names <- names(news_train)
 needed_columns <- setdiff(column_names,ignored_column_names)
 
-data_channel<-"data_channel"
+#data_channel<-"data_channel"
+
+#for(i in seq_along(needed_columns)){
+#  p <- ggplot(news_train,aes_string(x = data_channel, y=needed_columns[i])) + #geom_boxplot(aes(fill = data_channel))  + coord_flip() + xlab("Data Channels") + #theme(legend.position="none")
+#  plot(p)
+#}
+
+#cat_dow<-"cat_dow"
+
+#for(i in seq_along(needed_columns)){
+#  p <- ggplot(news_train,aes_string(x = cat_dow, y=needed_columns[i])) + #geom_boxplot(aes(fill = cat_dow))  + coord_flip() + xlab("Day of week") + #theme(legend.position="none")
+#  plot(p)
+#}
+
+is_weekend<-"is_weekend"
 
 for(i in seq_along(needed_columns)){
-  p <- ggplot(news_train,aes_string(x = data_channel, y=needed_columns[i])) + geom_boxplot(aes(fill = data_channel))  + coord_flip() + xlab("Data Channels") + theme(legend.position="none")
-  plot(p)
-}
-
-cat_dow<-"cat_dow"
-
-for(i in seq_along(needed_columns)){
-  p <- ggplot(news_train,aes_string(x = cat_dow, y=needed_columns[i])) + geom_boxplot(aes(fill = data_channel))  + coord_flip() + xlab("Day of week") + theme(legend.position="none")
+  p <- ggplot(news_train,aes_string(x = is_weekend, y=needed_columns[i])) + geom_boxplot(aes(fill = is_weekend))  + coord_flip() + xlab("Is weekend") + theme(legend.position="none")
   plot(p)
 }
 
