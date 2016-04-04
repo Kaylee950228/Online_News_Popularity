@@ -1,20 +1,22 @@
+setwd("/Users/Darshan/Documents/Online_News_Popularity")
+source("DataPreprocess.R")
+
 library(DAAG)
 library(car)
 library(leaps)
 
-news_train <- read.csv("/Users/Darshan/Documents/CS 7280 Stats/Project/Data/Cleaned_Cor_Train.csv", header = TRUE)
+news_train <- read.csv("/Users/Darshan/Documents/CS 7280 Stats/Project/Data/Train.csv", header = TRUE)
+news_train <- data_cleaning(news_train)
+news_train <- correlation_cleaning(news_train)
+news_train <- target_transformation(news_train)
+obj <- normalization(news_train)
+news_train <- obj$news_train
+news_train <- cat_encoding(news_train)
+
 
 train_url <- news_train$url
-train_timedelta <- news_train$timedelta
-news_train$timedelta <- NULL
 news_train$url <- NULL
-
-p<-powerTransform(news_train$shares)
-shares_transformed <- bcPower(news_train$shares,p$lambda)
-news_train$shares_transformed <- shares_transformed
-
-news_train$shares <- NULL
-
+news_train$cat_dow <- NULL
 categorical_var <- c("data_channel_is_lifestyle", 
                      "data_channel_is_entertainment", "data_channel_is_bus", 
                      "data_channel_is_world", "data_channel_is_socmed", 
@@ -28,9 +30,10 @@ news_train <- subset(news_train, select = setdiff(names(news_train),categorical_
 
 #plot(leaps, scale="adjr2")
 
-null=lm(shares_transformed~1, data=news_train)
-full=lm(shares_transformed~., data=news_train)
-step(null, scope=list(lower=null, upper=full), direction="forward")
+null=lm(shares~1, data=news_train)
+full=lm(shares~., data=news_train)
+#model <- step(null, scope=list(lower=null, upper=full), direction="forward")
+model <- step(null, scope=list(upper=full), direction="both", data=news_train)
 
 #shares.glm <- glm(shares_transformed ~ ., data = news_train)
 #stepwise(shares.glm, direction='forward')
