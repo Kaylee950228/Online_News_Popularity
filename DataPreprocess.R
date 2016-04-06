@@ -5,6 +5,8 @@ data_cleaning <- function(news){
   news$n_non_stop_words <- NULL
   news$kw_min_min <- NULL
   
+  news$is_weekend <- as.factor(news$is_weekend)
+  
   return(news)
   
 }
@@ -13,12 +15,22 @@ correlation_cleaning <- function(news){
   
   news$rate_negative_words <- NULL
   news$n_non_stop_unique_tokens <- NULL
+  
+  news$i_kw_max_avg_min <- news$kw_max_min + news$kw_avg_min
+  news$i_kw_max_avg_avg <- news$kw_max_avg + news$kw_avg_avg
+  
+  news$kw_max_min <- NULL
+  news$kw_avg_min <- NULL
+  news$kw_max_avg <- NULL
+  news$kw_avg_avg <- NULL
+  
   return(news)
   
 }
 
 target_transformation <- function(news){
   
+  library(car)
   p<-powerTransform(news$shares)
   shares_transformed <-bcPower(news$shares,p$lambda)
   news$shares <- shares_transformed
