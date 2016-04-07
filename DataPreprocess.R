@@ -4,8 +4,9 @@ data_cleaning <- function(news){
   news <- news[news$n_tokens_content != 0,]
   news$n_non_stop_words <- NULL
   news$kw_min_min <- NULL
-  
+  news <- news[news_train$n_unique_tokens < 701,]
   news$is_weekend <- as.factor(news$is_weekend)
+  
   
   return(news)
   
