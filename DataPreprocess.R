@@ -1,12 +1,22 @@
 data_cleaning <- function(news){
   
+  library(dplyr)
+  
   news$timedelta <- NULL  
-  news <- news[news$n_tokens_content != 0,]
+  #news <- news[news$n_tokens_content != 0,]
+  news <- filter(news, n_tokens_content != 0)
   news$n_non_stop_words <- NULL
   news$kw_min_min <- NULL
-  news <- news[news_train$n_unique_tokens < 701,]
-  news$is_weekend <- as.factor(news$is_weekend)
+  #news <- news[news_train$n_unique_tokens < 701,]
+  news <- filter(news, n_unique_tokens < 701)
+  news <- filter(news, kw_min_avg >= 0)
   
+  news$LDA_00 <- log(news$LDA_00 + 1)
+  news$LDA_01 <- log(news$LDA_01 + 1)
+  news$LDA_02 <- log(news$LDA_02 + 1)
+  news$LDA_03 <- log(news$LDA_03 + 1)
+  news$LDA_04 <- log(news$LDA_04 + 1)
+  news$is_weekend <- as.factor(news$is_weekend)
   
   return(news)
   
