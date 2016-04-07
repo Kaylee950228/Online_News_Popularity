@@ -102,11 +102,14 @@ cat_encoding <- function(news){
   
 }
 
-news_train <- read.csv("/Users/Darshan/Documents/CS 7280 Stats/Project/Data/Train.csv", header = TRUE)
-news_train <- data_cleaning(news_train)
-news_train <- correlation_cleaning(news_train)
-news_train <- target_transformation(news_train)
-obj <- normalization(news_train)
-news_train <- obj$news_train
-news_train <- cat_encoding(news_train)
+#setwd("/Users/Darshan/Documents/Online_News_Popularity")
+#setwd("/home/gbakie/neu/stat-sp16/project/data")
+
+#news_train <- read.csv("Train.csv", header = TRUE)
+#news_train <- data_cleaning(news_train)
+#news_train <- correlation_cleaning(news_train)
+#news_train <- target_transformation(news_train)
+#obj <- normalization(news_train)
+#news_train <- obj$news_train
+#news_train <- cat_encoding(news_train)
 
