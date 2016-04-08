@@ -1,6 +1,7 @@
+library(dplyr)
+library(car)
+
 data_cleaning <- function(news){
-  
-  library(dplyr)
   
   news$timedelta <- NULL  
   #news <- news[news$n_tokens_content != 0,]
@@ -16,7 +17,6 @@ data_cleaning <- function(news){
   news$LDA_02 <- log(news$LDA_02 + 1)
   news$LDA_03 <- log(news$LDA_03 + 1)
   news$LDA_04 <- log(news$LDA_04 + 1)
-  news$is_weekend <- as.factor(news$is_weekend)
   
   return(news)
   
@@ -39,19 +39,27 @@ correlation_cleaning <- function(news){
   
 }
 
-target_transformation <- function(news){
+target_transformation <- function(news) {
   
-  library(car)
-  p<-powerTransform(news$shares)
-  shares_transformed <-bcPower(news$shares,p$lambda)
+  p <- powerTransform(news$shares)
+  shares_transformed <- bcPower(news$shares, p$lambda)
   news$shares <- shares_transformed
-  return(news)
   
+  return(list("news"=news, "lambda"=p$lambda))
+}
+
+target_inverse <- function(shares, lambda) {
+  if (lambda == 0) {
+    shares <- exp(shares)
+  }
+  else {
+    shares <- (lambda*shares + 1)^(1/lambda)
+  }
+  
+  return(shares)
 }
 
 normalization <- function(news_train){
-  
-  library(dplyr)
   
   # All Column names
   column_names <- names(news_train)
@@ -108,6 +116,8 @@ cat_encoding <- function(news){
   }
   
   news$data_channel <- as.factor(news$data_channel)
+  
+  news$is_weekend <- as.factor(news$is_weekend)
   
   return(news)
   
