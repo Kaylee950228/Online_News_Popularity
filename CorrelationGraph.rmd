@@ -1,17 +1,27 @@
 ```{r}
 library(corrplot)
+setwd("/Users/Darshan/Documents/CS 7280 Stats/Project/Data")
 
-news_train <- read.csv("/Users/Darshan/Documents/CS 7280 Stats/Project/Data/Cleaned_Train.csv", header = TRUE)
+news_train <- read.csv("Train.csv", header = TRUE)
+news_train <- data_cleaning(news_train)
 
 train_url <- news_train$url
-train_timedelta <- news_train$timedelta
-
-news_train$timedelta <- NULL
 news_train$url <- NULL
+
+#news_train$cat_dow <- NULL
+categorical_var <- c("data_channel_is_lifestyle", 
+                     "data_channel_is_entertainment", "data_channel_is_bus", 
+                     "data_channel_is_world", "data_channel_is_socmed", 
+                     "data_channel_is_tech", "weekday_is_monday", "weekday_is_tuesday", 
+                     "weekday_is_wednesday", "weekday_is_thursday", "weekday_is_friday", 
+                     "weekday_is_saturday", "weekday_is_sunday", "is_weekend")
+
+news_train <- subset(news_train, select = setdiff(names(news_train),categorical_var))
+
 news_train_matrix <- as.matrix(news_train)
 news_train_cor <- cor(news_train_matrix)
 
-corrplot(news_train_cor, type  = "lower", diag = FALSE, tl.cex=0.6)
+corrplot(news_train_cor, type  = "lower", diag = FALSE, tl.cex=0.7)
 
 ```
 
@@ -25,9 +35,11 @@ round(cor(news_train[,c(17:23)]), digits=3)
 ```
 
 ```{r}
+round(cor(news_train[,c(19:21)]), digits=3)
+```
 
+```{r}
 #news_train$kw_min_min <- NULL
-
 ```
 
 ```{r}
@@ -46,15 +58,3 @@ round(cor(news_train[,c(46:48)]), digits=3)
 news_train$rate_negative_words <- NULL
 ```
 
-```{r}
-
-# LDA_01 has 0.611 correlation with data_channel_is_entertainment
-# LDA_00 has 0.774 correlation with data_channel_is_bus
-# LDA_00 has 0.191 with data_channel_is_socmed
-# LDA_04 has 0.751 correlation with data_channel_is_tech
-# LDA_02 has 0.835 correlation with data_channel_is_world
-
-# is_weekend has 0.658 correlation with weekday_is_saturday 
-# is_weekend has 0.705 correlation with weekday_is_sunday
-
-```
