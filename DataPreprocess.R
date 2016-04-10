@@ -123,6 +123,20 @@ cat_encoding <- function(news){
   
 }
 
+OUTLIERS_CUTOFF = 0.05
+outliers_removal <- function(news) {
+  # sort by shares
+  sorted_news <- news[order(news$shares),]
+  
+  num_rows <- nrow(news)
+  # remove lower tail
+  cut_low_point <- as.integer(OUTLIERS_CUTOFF*num_rows)
+  cut_high_point <- as.integer((1-OUTLIERS_CUTOFF)*num_rows)
+  sorted_news <- sorted_news[cut_low_point:cut_high_point, ]
+  
+  return(sorted_news)
+}
+
 #setwd("/Users/Darshan/Documents/Online_News_Popularity")
 #setwd("/home/gbakie/neu/stat-sp16/project/data")
 
