@@ -18,6 +18,26 @@ data_cleaning <- function(news){
   news$LDA_03 <- log(news$LDA_03 + 1)
   news$LDA_04 <- log(news$LDA_04 + 1)
   
+  news$self_reference_avg_sharess <- log(news$self_reference_avg_sharess + 1)
+  news$self_reference_min_shares <- log(news$self_reference_min_shares + 1)
+  news$self_reference_max_shares <- log(news$self_reference_max_shares + 1)
+  
+  news$kw_min_min <- log(news$kw_min_min + 1)
+  news$kw_max_min <- log(news$kw_max_min + 1)
+  news$kw_avg_min <- log(news$kw_avg_min + 1)
+  
+  news$kw_min_max <- log(news$kw_min_max + 1)
+  news$kw_max_max <- log(news$kw_max_max + 1)
+  news$kw_avg_max <- log(news$kw_avg_max + 1)
+  
+  news$kw_min_avg <- log(news$kw_min_avg + 1)
+  news$kw_max_avg <- log(news$kw_max_avg + 1)
+  news$kw_avg_avg <- log(news$kw_avg_avg + 1)
+  
+  news$self_reference_avg_sharess <- log(news$self_reference_avg_sharess + 1)
+  news$self_reference_avg_sharess <- log(news$self_reference_avg_sharess + 1)
+  news$self_reference_avg_sharess <- log(news$self_reference_avg_sharess + 1)
+  
   return(news)
   
 }
