@@ -1,9 +1,14 @@
 ```{r}
 library(corrplot)
+setwd("/Users/Darshan/Documents/Online_News_Popularity")
+source("DataPreprocess.R")
+
 setwd("/Users/Darshan/Documents/CS 7280 Stats/Project/Data")
+
 
 news_train <- read.csv("Train.csv", header = TRUE)
 news_train <- data_cleaning(news_train)
+news_train <- correlation_cleaning(news_train)
 
 train_url <- news_train$url
 news_train$url <- NULL
