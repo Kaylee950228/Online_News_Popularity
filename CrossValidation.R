@@ -88,9 +88,28 @@ model_variables
 mses
 R2s
 
+summary(lm(shares ~ data_channel + i_kw_max_avg_avg + cat_dow + num_hrefs + 
+             kw_max_max + self_reference_avg_sharess + LDA_02 + 
+             global_subjectivity + LDA_00 + n_unique_tokens + num_self_hrefs + 
+             abs_title_sentiment_polarity + n_tokens_title + abs_title_subjectivity
+           + num_imgs + min_positive_polarity + average_token_length + 
+             title_sentiment_polarity + num_keywords + LDA_01, data=news))
+
+summary(lm(shares ~ data_channel + i_kw_max_avg_avg + cat_dow+num_hrefs + 
+             kw_max_max + self_reference_avg_sharess + LDA_02 + 
+             global_subjectivity + LDA_00 + n_unique_tokens + num_self_hrefs + 
+             abs_title_sentiment_polarity + n_tokens_title + abs_title_subjectivity
+           + num_imgs + min_positive_polarity + average_token_length + 
+             title_sentiment_polarity + num_keywords + LDA_01 + title_subjectivity + 
+             min_negative_polarity  + avg_negative_polarity, data=news))
+
+
+
 model.summaries <- list()
 min.bic.index <- c()
 max.r2.index <- c()
+
+select.var.index <- c()
 
 for (i in 1:K) {
   
@@ -114,7 +133,13 @@ for (i in 1:K) {
   min.bic.index <- append(which.min(summary.model$bic), min.bic.index)
   max.r2.index <- append(which.max(summary.model$adjr2) ,max.r2.index)
   model.summaries[[i]] <- summary.model
+  
+  select.var.index <- append(which.max(which(summary.model$which[2,])), select.var.index)
 }
+
+# Found four additional variable 
+
+# title_subjectivity min_negative_polarity n_tokens_content avg_negative_polarity
 
 # Exhaustive search on the variable which were not selected by all the fold in forward, backward
 # and both directional step wise variable selection method
