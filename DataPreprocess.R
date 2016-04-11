@@ -10,7 +10,7 @@ data_cleaning <- function(news){
   news$kw_min_min <- NULL
   #news <- news[news_train$n_unique_tokens < 701,]
   news <- filter(news, n_unique_tokens < 701)
-  news <- filter(news, kw_min_avg >= 0)
+  news <- filter(news, kw_min_avg >= 0, kw_avg_min>=0)
   
   news$LDA_00 <- log(news$LDA_00 + 1)
   news$LDA_01 <- log(news$LDA_01 + 1)
@@ -18,25 +18,20 @@ data_cleaning <- function(news){
   news$LDA_03 <- log(news$LDA_03 + 1)
   news$LDA_04 <- log(news$LDA_04 + 1)
   
-  news$self_reference_avg_sharess <- log(news$self_reference_avg_sharess + 1)
-  news$self_reference_min_shares <- log(news$self_reference_min_shares + 1)
-  news$self_reference_max_shares <- log(news$self_reference_max_shares + 1)
+  #news$self_reference_avg_sharess <- log(news$self_reference_avg_sharess + 1)
+  #news$self_reference_min_shares <- log(news$self_reference_min_shares + 1)
+  #news$self_reference_max_shares <- log(news$self_reference_max_shares + 1)
   
-  news$kw_min_min <- log(news$kw_min_min + 1)
-  news$kw_max_min <- log(news$kw_max_min + 1)
-  news$kw_avg_min <- log(news$kw_avg_min + 1)
+  #news$kw_max_min <- log(news$kw_max_min + 1)
+  #news$kw_avg_min <- log(news$kw_avg_min + 1)
   
-  news$kw_min_max <- log(news$kw_min_max + 1)
-  news$kw_max_max <- log(news$kw_max_max + 1)
-  news$kw_avg_max <- log(news$kw_avg_max + 1)
+  #news$kw_min_avg <- log(news$kw_min_avg + 1)
+  #news$kw_min_max <- log(news$kw_min_max + 1)
+  #news$kw_max_avg <- log(news$kw_max_avg + 1)
+  #news$kw_avg_avg <- log(news$kw_avg_avg + 1)
   
-  news$kw_min_avg <- log(news$kw_min_avg + 1)
-  news$kw_max_avg <- log(news$kw_max_avg + 1)
-  news$kw_avg_avg <- log(news$kw_avg_avg + 1)
-  
-  news$self_reference_avg_sharess <- log(news$self_reference_avg_sharess + 1)
-  news$self_reference_avg_sharess <- log(news$self_reference_avg_sharess + 1)
-  news$self_reference_avg_sharess <- log(news$self_reference_avg_sharess + 1)
+  #news$kw_avg_max <- log(news$kw_avg_max + 1)
+  #news$kw_max_max <- log(news$kw_max_max + 1)
   
   return(news)
   
@@ -47,8 +42,37 @@ correlation_cleaning <- function(news){
   news$rate_negative_words <- NULL
   news$n_non_stop_unique_tokens <- NULL
   
-  news$i_kw_max_avg_min <- news$kw_max_min + news$kw_avg_min
-  news$i_kw_max_avg_avg <- news$kw_max_avg + news$kw_avg_avg
+  # self_reference_min_shares and self_reference_max_shares has high corelation with 
+  # self_reference_avg_sharess
+  news$self_reference_min_shares <- NULL
+  news$self_reference_max_shares <- NULL
+  
+  news$i_n_unique_tokens_content <- news$n_unique_tokens + news$n_tokens_content
+  # 0.751 colinearity between n_unique_tokens and n_tokens_content
+  news$n_unique_tokens <- NULL
+  news$n_tokens_content <- NULL
+  
+  news$i_title_subjectivity_sentiment_polarity <- (news$title_subjectivity + 
+                                                     news$abs_title_sentiment_polarity) / 2.0
+  # 0.71 colinearity between title_subjectivity and abs_title_sentiment_polarity
+  
+  news$title_subjectivity <- NULL
+  news$abs_title_sentiment_polarity <- NULL
+  
+  # 0.719 colinearity between min_negative_polarity and avg_negative_polarity
+  news$min_avg_negative_pol <- (news$min_negative_polarity + news$avg_negative_polarity) / 2.0
+  
+  news$min_negative_polarity <- NULL
+  news$avg_negative_polarity <- NULL
+  
+  # 0.779 colinearity between rate_positive_words and global_sentiment_polarity
+  news$i_rate_pos_glob_sent_polarity <- (news$rate_positive_words * 
+                                           news$global_sentiment_polarity)
+  news$rate_positive_words <- NULL
+  news$global_sentiment_polarity <- NULL
+  
+  news$i_kw_max_avg_min <- (news$kw_max_min + news$kw_avg_min) / 2.0
+  news$i_kw_max_avg_avg <- (news$kw_max_avg + news$kw_avg_avg) / 2.0
   
   news$kw_max_min <- NULL
   news$kw_avg_min <- NULL
