@@ -10,7 +10,7 @@ data_cleaning <- function(news){
   news$kw_min_min <- NULL
   #news <- news[news_train$n_unique_tokens < 701,]
   news <- filter(news, n_unique_tokens < 701)
-  news <- filter(news, kw_min_avg >= 0)
+  news <- filter(news, kw_min_avg >= 0, kw_avg_min >= 0)
   
   news$LDA_00 <- log(news$LDA_00 + 1)
   news$LDA_01 <- log(news$LDA_01 + 1)
@@ -22,7 +22,7 @@ data_cleaning <- function(news){
   news$self_reference_min_shares <- log(news$self_reference_min_shares + 1)
   news$self_reference_max_shares <- log(news$self_reference_max_shares + 1)
   
-  news$kw_min_min <- log(news$kw_min_min + 1)
+  #news$kw_min_min <- log(news$kw_min_min + 1)
   news$kw_max_min <- log(news$kw_max_min + 1)
   news$kw_avg_min <- log(news$kw_avg_min + 1)
   
@@ -54,6 +54,9 @@ correlation_cleaning <- function(news){
   news$kw_avg_min <- NULL
   news$kw_max_avg <- NULL
   news$kw_avg_avg <- NULL
+  
+  news$self_reference_min_shares <- NULL
+  news$self_reference_max_shares <- NULL
   
   return(news)
   
@@ -143,15 +146,16 @@ cat_encoding <- function(news){
   
 }
 
-OUTLIERS_CUTOFF = 0.05
+OUTLIERS_HIGH_CUTOFF = 0.1
+OUTLIERS_LOW_CUTOFF = 0.05
 outliers_removal <- function(news) {
   # sort by shares
   sorted_news <- news[order(news$shares),]
   
   num_rows <- nrow(news)
   # remove lower tail
-  cut_low_point <- as.integer(OUTLIERS_CUTOFF*num_rows)
-  cut_high_point <- as.integer((1-OUTLIERS_CUTOFF)*num_rows)
+  cut_low_point <- as.integer(OUTLIERS_LOW_CUTOFF*num_rows)
+  cut_high_point <- as.integer((1-OUTLIERS_HIGH_CUTOFF)*num_rows)
   sorted_news <- sorted_news[cut_low_point:cut_high_point, ]
   
   return(sorted_news)
