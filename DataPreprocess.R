@@ -18,20 +18,20 @@ data_cleaning <- function(news){
   news$LDA_03 <- log(news$LDA_03 + 1)
   news$LDA_04 <- log(news$LDA_04 + 1)
   
-  #news$self_reference_avg_sharess <- log(news$self_reference_avg_sharess + 1)
+  news$self_reference_avg_sharess <- log(news$self_reference_avg_sharess + 1)
   #news$self_reference_min_shares <- log(news$self_reference_min_shares + 1)
   #news$self_reference_max_shares <- log(news$self_reference_max_shares + 1)
   
-  #news$kw_max_min <- log(news$kw_max_min + 1)
-  #news$kw_avg_min <- log(news$kw_avg_min + 1)
+  news$kw_max_min <- log(news$kw_max_min + 1)
+  news$kw_avg_min <- log(news$kw_avg_min + 1)
   
-  #news$kw_min_avg <- log(news$kw_min_avg + 1)
-  #news$kw_min_max <- log(news$kw_min_max + 1)
-  #news$kw_max_avg <- log(news$kw_max_avg + 1)
-  #news$kw_avg_avg <- log(news$kw_avg_avg + 1)
+  news$kw_min_avg <- log(news$kw_min_avg + 1)
+  news$kw_min_max <- log(news$kw_min_max + 1)
+  news$kw_max_avg <- log(news$kw_max_avg + 1)
+  news$kw_avg_avg <- log(news$kw_avg_avg + 1)
   
-  #news$kw_avg_max <- log(news$kw_avg_max + 1)
-  #news$kw_max_max <- log(news$kw_max_max + 1)
+  news$kw_avg_max <- log(news$kw_avg_max + 1)
+  news$kw_max_max <- log(news$kw_max_max + 1)
   
   return(news)
   
@@ -60,7 +60,7 @@ correlation_cleaning <- function(news){
   news$abs_title_sentiment_polarity <- NULL
   
   # 0.719 colinearity between min_negative_polarity and avg_negative_polarity
-  news$min_avg_negative_pol <- (news$min_negative_polarity + news$avg_negative_polarity) / 2.0
+  news$i_min_avg_negative_pol <- (news$min_negative_polarity + news$avg_negative_polarity) / 2.0
   
   news$min_negative_polarity <- NULL
   news$avg_negative_polarity <- NULL
@@ -73,6 +73,18 @@ correlation_cleaning <- function(news){
   
   news$i_kw_max_avg_min <- (news$kw_max_min + news$kw_avg_min) / 2.0
   news$i_kw_max_avg_avg <- (news$kw_max_avg + news$kw_avg_avg) / 2.0
+  
+  # High collinearity after applying log transformation on kw_min_avg and kw_min_max
+  # Log transformation has improved the r-squared value
+  news$i_kw_min_avg_max <- (news$kw_min_avg + news$kw_min_max) / 2.0
+  news$kw_min_avg<- NULL
+  news$kw_min_max<- NULL
+  
+  # High collinearity after applying log transformation on kw_avg_max and kw_max_max
+  # Log transformation has improved the r-squared value
+  news$i_kw_avg_max_max <- (news$kw_avg_max + news$kw_max_max) / 2.0
+  news$kw_avg_max <- NULL
+  news$kw_max_max <- NULL
   
   news$kw_max_min <- NULL
   news$kw_avg_min <- NULL
