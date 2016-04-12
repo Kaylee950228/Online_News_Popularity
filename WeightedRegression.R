@@ -1,113 +1,295 @@
+#setwd("/home/gbakie/neu/stat-sp16/project/Online_News_Popularity")
 setwd("/Users/Darshan/Documents/Online_News_Popularity")
+
+library(caret)
 source("DataPreprocess.R")
 
-library(DAAG)
-library(car)
-library(leaps)
-library(plyr)
+set.seed(464)
 
-news_train <- read.csv("/Users/Darshan/Documents/CS 7280 Stats/Project/Data/Train.csv", header = TRUE)
-news_train <- data_cleaning(news_train)
-news_train <- correlation_cleaning(news_train)
-return_obj <- target_transformation(news_train)
-news_train <- return_obj$news
-lamda <- return_obj$lambda
-obj <- normalization(news_train)
-news_train <- obj$news_train
-news_train <- cat_encoding(news_train)
+setwd("/Users/Darshan/Documents/CS 7280 Stats/Project/Data/")
+#setwd("/home/gbakie/neu/stat-sp16/project/data")
 
-train_url <- news_train$url
-news_train$url <- NULL
+news <- read.csv("Train.csv", header = TRUE)
 
-model <- lm(shares ~ i_kw_max_avg_avg + 
-              num_hrefs * data_channel_is_socmed +
-              self_reference_avg_sharess * weekday_is_sunday +
-              kw_min_avg * is_weekend +
-              num_keywords * data_channel_is_socmed * is_weekend +
-              global_subjectivity * data_channel_is_socmed +
-              num_imgs * is_weekend * data_channel_is_socmed +
-              kw_min_max * data_channel_is_socmed +
-              kw_min_max * data_channel_is_lifestyle +
-              num_self_hrefs * is_weekend +
-              abs_title_sentiment_polarity +
-              average_token_length * data_channel_is_entertainment +
-              abs_title_subjectivity +
-              min_positive_polarity * data_channel_is_entertainment +
-              i_kw_max_avg_min +
-              n_tokens_title * data_channel_is_world +
-              kw_max_max * weekday_is_saturday +
-              title_sentiment_polarity +
-              min_negative_polarity * data_channel_is_bus +
-              title_subjectivity +
-              kw_avg_max * data_channel_is_socmed * is_weekend +
-              global_rate_negative_words +
-              global_sentiment_polarity +
-              self_reference_min_shares +
-              n_unique_tokens +
-              n_tokens_content * data_channel_is_bus +
-              rate_positive_words +
-              global_rate_positive_words, data = news_train)
+news <- data_cleaning(news)
+news <- correlation_cleaning(news)
 
-ncvTest(model)
+# Can not apply transformation on weighted regression
+#return_obj <- target_transformation(news)
+#news <- return_obj$news
+#lamda <- return_obj$lambda
 
-w <- predict(lm(abs(model$res) ~ news_train$i_kw_max_avg_avg + 
-                  news_train$num_hrefs * news_train$data_channel_is_socmed +
-                  news_train$self_reference_avg_sharess * news_train$weekday_is_sunday +
-                  news_train$kw_min_avg * news_train$is_weekend +
-                  news_train$num_keywords * news_train$data_channel_is_socmed * news_train$is_weekend +
-                  news_train$global_subjectivity * news_train$data_channel_is_socmed +
-                  news_train$num_imgs * news_train$is_weekend * news_train$data_channel_is_socmed +
-                  news_train$kw_min_max * news_train$data_channel_is_socmed +
-                  news_train$kw_min_max * news_train$data_channel_is_lifestyle +
-                  news_train$num_self_hrefs * news_train$is_weekend +
-                  news_train$abs_title_sentiment_polarity +
-                  news_train$average_token_length * news_train$data_channel_is_entertainment +
-                  news_train$abs_title_subjectivity +
-                  news_train$min_positive_polarity * news_train$data_channel_is_entertainment +
-                  news_train$i_kw_max_avg_min +
-                  news_train$n_tokens_title * news_train$data_channel_is_world +
-                  news_train$kw_max_max * news_train$weekday_is_saturday +
-                  news_train$title_sentiment_polarity +
-                  news_train$min_negative_polarity * news_train$data_channel_is_bus +
-                  news_train$title_subjectivity +
-                  news_train$kw_avg_max * news_train$data_channel_is_socmed * news_train$is_weekend +
-                  news_train$global_rate_negative_words +
-                  news_train$global_sentiment_polarity +
-                  news_train$self_reference_min_shares +
-                  news_train$n_unique_tokens +
-                  news_train$n_tokens_content * news_train$data_channel_is_bus +
-                  news_train$rate_positive_words +
-                  news_train$global_rate_positive_words))
+obj <- normalization(news)
+news <- obj$news
+
+news <- cat_encoding(news)
+
+url <- news$url
+news$url <- NULL
+
+categorical_var <- c("data_channel_is_lifestyle", 
+                     "data_channel_is_entertainment", "data_channel_is_bus", 
+                     "data_channel_is_world", "data_channel_is_socmed", 
+                     "data_channel_is_tech", "weekday_is_monday", "weekday_is_tuesday", 
+                     "weekday_is_wednesday", "weekday_is_thursday", "weekday_is_friday", 
+                     "weekday_is_saturday", "weekday_is_sunday")
+
+news_with_cat <- subset(news, select = categorical_var)
+
+# Should be commented for the model with interaction terms
+news <- subset(news, select = setdiff(names(news),categorical_var))
+
+# Should be commented for the full dataset
+news <- cook_outliers_removal(news)
+
+K <- 10
+
+folds <- createFolds(news$shares, k = K, list=TRUE, returnTrain=TRUE)
+
+models <- list()
+rmses <- c()
+R2s <- c()
+
+# Weight Regression Code started
+
+ncvTest(lm(shares ~ .,data=news))
+m.unweighted <- lm(shares ~ ., data=news)
+#news$res <- abs(m.unweighted$residuals)
+#news$predict<-predict(m.unweighted, data=news)
+#ggplot(data = news, aes(x=predict,y=res)) + geom_point() + stat_smooth() 
+#+ xlab("Shares Prediction") + ylab("abs(residual)")
+#news$res <- NULL
+#news$predict <- NULL
+w <- predict(lm(abs(m.unweighted$res) ~ predict(m.unweighted, data=news)), data=news)
+
+## Code Ends
+
+for (i in 1:K) {
+  
+  news_train <- news[folds[[i]],]
+  news_val <- news[-folds[[i]],]
+  
+  null=lm(shares~1, data=news_train)
+  full=lm(shares~., data=news_train)
+  
+  #m.unweighted <- lm(shares ~ ., data=news_train)
+  #w <- predict(lm(abs(m.unweighted$res) ~ predict(m.unweighted, data=news_train)), data=news_train)
+  #model <- lm(formula = shares ~ ., data = news_train, weights = 1/(w^2))
+  model <- step(null, scope=list(lower=null, upper=full), direction="both", trace=0)
+  #model <- step(full, direction="backward", trace=0)
+  
+  pred <- predict(model, news_val)
+  
+  #pred <- target_inverse(pred, lamda)
+  #shares_val <- target_inverse(news_val$shares, lamda)
+  #mse <- sum((pred - shares_val)**2) / nrow(news_val)
+  
+  mse <- sum((pred - news_val$shares)**2) / nrow(news_val)
+  rmses <- append(rmses, sqrt(mse))
+  
+  R2s <- append(R2s, summary(model)$adj.r.squared)
+  
+  models[[i]] <- model
+  
+}
+
+# Below code 
+
+unique_coef <- c()
+
+for(i in 1:length(models)){
+  model_coef <- names(models[[i]]$coefficients)
+  unique_coef <- unique(c(model_coef, unique_coef))
+}
+
+model_variables <- data.frame(matrix(NA,nrow=length(unique_coef),ncol=length(models)+1))
+model_variables$X1 <- unique_coef
+
+for(i in 1:length(models)){
+  
+  model_coef <- names(models[[i]]$coefficients)
+  tf_coef <- unique_coef %in% model_coef
+  var <- paste("X", toString(i+1), sep = "")
+  model_variables[var] <- tf_coef
+  
+}
+
+model_variables
+rmses
+R2s
+mean(rmses)
+mean(R2s)
+
+# Best Model With outlier
+summary(lm(shares ~ data_channel +
+             cat_dow +
+             i_kw_max_avg_avg +
+             self_reference_avg_sharess +
+             i_kw_avg_max_max +
+             num_hrefs +
+             global_subjectivity +
+             LDA_00 +
+             LDA_01 +
+             LDA_02 +
+             num_self_hrefs +
+             i_n_unique_tokens_content +
+             i_title_subjectivity_sentiment_polarity +
+             abs_title_subjectivity +
+             n_tokens_title +
+             min_positive_polarity +
+             num_imgs +
+             average_token_length +
+             title_sentiment_polarity + 
+             I(n_tokens_title * weekday_is_tuesday) + 
+             I(average_token_length * data_channel_is_entertainment) + 
+             I(num_hrefs * data_channel_is_socmed) + 
+             I(num_imgs * is_weekend * data_channel_is_socmed) + 
+             I(global_subjectivity * data_channel_is_socmed) + 
+             I(i_n_unique_tokens_content * data_channel_is_bus) +
+             I(min_positive_polarity * data_channel_is_entertainment), data=news))
+
+I(n_tokens_title * weekday_is_tuesday)
+I(average_token_length * data_channel_is_entertainment)
+
+I(num_hrefs * data_channel_is_socmed)
+I(num_imgs * is_weekend * data_channel_is_socmed)
+I(global_subjectivity * data_channel_is_socmed)
+I(i_n_unique_tokens_content * data_channel_is_bus)
+I(min_positive_polarity * data_channel_is_entertainment)
+
+I(num_self_hrefs * is_weekend)
 
 
-model.weighted <- lm(shares ~ i_kw_max_avg_avg + 
-                       num_hrefs * data_channel_is_socmed +
-                       self_reference_avg_sharess * weekday_is_sunday +
-                       kw_min_avg * is_weekend +
-                       num_keywords * data_channel_is_socmed * is_weekend +
-                       global_subjectivity * data_channel_is_socmed +
-                       num_imgs * is_weekend * data_channel_is_socmed +
-                       kw_min_max * data_channel_is_socmed +
-                       kw_min_max * data_channel_is_lifestyle +
-                       num_self_hrefs * is_weekend +
-                       abs_title_sentiment_polarity +
-                       average_token_length * data_channel_is_entertainment +
-                       abs_title_subjectivity +
-                       min_positive_polarity * data_channel_is_entertainment +
-                       i_kw_max_avg_min +
-                       n_tokens_title * data_channel_is_world +
-                       kw_max_max  +
-                       title_sentiment_polarity +
-                       min_negative_polarity * data_channel_is_bus +
-                       title_subjectivity +
-                       kw_avg_max * data_channel_is_socmed * is_weekend +
-                       global_rate_negative_words +
-                       global_sentiment_polarity +
-                       self_reference_min_shares +
-                       n_unique_tokens +
-                       n_tokens_content * data_channel_is_bus +
-                       rate_positive_words +
-                       global_rate_positive_words, data = news_train, weights=1/(w^2))
+# Best Model with out Outlier 
+summary(lm(shares ~ i_title_subjectivity_sentiment_polarity +
+             data_channel +
+             i_kw_max_avg_avg +
+             cat_dow +
+             self_reference_avg_sharess +
+             num_hrefs +
+             i_kw_avg_max_max +
+             LDA_00 +
+             num_self_hrefs +
+             i_n_unique_tokens_content +
+             global_subjectivity +
+             LDA_02 +
+             min_positive_polarity +
+             num_imgs +
+             LDA_04 +
+             title_sentiment_polarity +
+             max_negative_polarity +
+             abs_title_subjectivity + 
+             i_rate_pos_glob_sent_polarity + 
+             global_rate_negative_words + 
+             i_rate_pos_glob_sent_polarity, data=news))
+I(max_negative_polarity * is_weekend)
+# Exhuastive Subset selection on the remaning set of variables
 
-summary(model.weighted)
+model.summaries <- list()
+min.bic.index <- c()
+max.r2.index <- c()
+max.r2 <- c()
+select.var.index <- c()
 
+for (i in 1:K) {
+  
+  news_train <- news[folds[[i]],]
+  news_val <- news[-folds[[i]],]
+  
+  model <- regsubsets(shares ~ i_title_subjectivity_sentiment_polarity +
+                        data_channel +
+                        i_kw_max_avg_avg +
+                        cat_dow +
+                        self_reference_avg_sharess +
+                        num_hrefs +
+                        i_kw_avg_max_max +
+                        LDA_00 +
+                        num_self_hrefs +
+                        i_n_unique_tokens_content +
+                        global_subjectivity +
+                        LDA_02 +
+                        min_positive_polarity +
+                        num_imgs +
+                        LDA_04 +
+                        title_sentiment_polarity +
+                        max_negative_polarity +
+                        abs_title_subjectivity + 
+                        i_rate_pos_glob_sent_polarity +
+                        global_rate_negative_words +
+                        global_rate_positive_words +
+                        num_keywords +
+                        num_videos +
+                        average_token_length +
+                        avg_positive_polarity +
+                        i_min_avg_negative_pol +
+                        LDA_01 +
+                        LDA_03, nbest = 1, nvmax = 38, 
+                      data=news_train, force.in = c(1:28), 
+                      method = "exhaustive", really.big = TRUE)
+  
+  summary.model <- summary(model)
+  
+  min.bic.index <- append(which.min(summary.model$bic), min.bic.index)
+  max.r2.index <- append(which.max(summary.model$adjr2) ,max.r2.index)
+  max.r2<- append(max(summary.model$adjr2),max.r2)
+  
+  model.summaries[[i]] <- summary.model
+  
+  select.var.index <- append(which.max(which(summary.model$which[1,])), select.var.index)
+}
+
+# Found four additional variable 
+
+# i_rate_pos_glob_sent_polarity global_rate_negative_words avg_positive_polarity i_rate_pos_glob_sent_polarity
+
+# Final Model Results on K-fold
+K <- 10
+folds <- createFolds(news$shares, k = K, list=TRUE, returnTrain=TRUE)
+
+models <- list()
+rmses <- c()
+R2s <- c()
+
+for (i in 1:K) {
+  
+  news_train <- news[folds[[i]],]
+  news_val <- news[-folds[[i]],]
+  
+  model <- lm(shares ~ data_channel +
+                cat_dow +
+                i_kw_max_avg_avg +
+                self_reference_avg_sharess +
+                i_kw_avg_max_max +
+                num_hrefs +
+                global_subjectivity +
+                LDA_00 +
+                LDA_01 +
+                LDA_02 +
+                num_self_hrefs +
+                i_n_unique_tokens_content +
+                i_title_subjectivity_sentiment_polarity +
+                abs_title_subjectivity +
+                n_tokens_title +
+                min_positive_polarity +
+                num_imgs +
+                average_token_length +
+                title_sentiment_polarity, data=news_train)
+  
+  pred <- predict(model, news_val)
+  
+  #pred <- target_inverse(pred, lamda)
+  #shares_val <- target_inverse(news_val$shares, lamda)
+  #mse <- sum((pred - shares_val)**2) / nrow(news_val)
+  
+  mse <- sum((pred - news_val$shares)**2) / nrow(news_val)
+  rmses <- append(rmses, sqrt(mse))
+  
+  R2s <- append(R2s, summary(model)$adj.r.squared)
+  
+  models[[i]] <- model
+  
+}
+rmses
+R2s
+mean(rmses)
+mean(R2s)
