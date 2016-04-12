@@ -147,15 +147,16 @@ summary(lm(shares ~ data_channel +
              I(i_n_unique_tokens_content * data_channel_is_bus) +
              I(min_positive_polarity * data_channel_is_entertainment), data=news))
 
+# Interaction terms for dataset with outlier
 I(n_tokens_title * weekday_is_tuesday)
 I(average_token_length * data_channel_is_entertainment)
-
+# Interaction terms common in both the dataset
 I(num_hrefs * data_channel_is_socmed)
 I(num_imgs * is_weekend * data_channel_is_socmed)
 I(global_subjectivity * data_channel_is_socmed)
 I(i_n_unique_tokens_content * data_channel_is_bus)
 I(min_positive_polarity * data_channel_is_entertainment)
-
+# Interaction terms for dataset without outlier
 I(num_self_hrefs * is_weekend)
 
 
@@ -272,7 +273,14 @@ for (i in 1:K) {
                 min_positive_polarity +
                 num_imgs +
                 average_token_length +
-                title_sentiment_polarity, data=news_train)
+                title_sentiment_polarity + 
+                I(n_tokens_title * weekday_is_tuesday) + 
+                I(average_token_length * data_channel_is_entertainment) + 
+                I(num_hrefs * data_channel_is_socmed) + 
+                I(num_imgs * is_weekend * data_channel_is_socmed) + 
+                I(global_subjectivity * data_channel_is_socmed) + 
+                I(i_n_unique_tokens_content * data_channel_is_bus) +
+                I(min_positive_polarity * data_channel_is_entertainment), data=news_train)
   
   pred <- predict(model, news_val)
   
