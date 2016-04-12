@@ -1,0 +1,35 @@
+Variable selected in all the three case of stepwise regression
+
+data_channel +
+cat_dow +
+i_kw_max_avg_avg +
+self_reference_avg_sharess +
+i_kw_avg_max_max +
+num_hrefs +
+global_subjectivity +
+LDA_00 +
+LDA_01 +
+LDA_02 +
+num_self_hrefs +
+i_n_unique_tokens_content +
+i_title_subjectivity_sentiment_polarity +
+abs_title_subjectivity +
+n_tokens_title +
+min_positive_polarity +
+num_imgs +
+average_token_length +
+title_sentiment_polarity +
+
+
+Variable not selected in all the three case of stepwise regression
+
+global_rate_negative_words +
+i_rate_pos_glob_sent_polarity +
+i_min_avg_negative_pol +
+num_keywords +
+i_rate_pos_glob_sent_polarity +
+global_rate_negative_words +
+global_rate_positive_words +
+i_kw_min_avg_max +
+num_videos +
+max_negative_polarity +
