@@ -1,22 +1,43 @@
 ```{r}
 
+setwd("/Users/Darshan/Documents/CS 7280 Stats/Project/Data/")
+#setwd("/home/gbakie/neu/stat-sp16/project/data")
+
+news <- read.csv("Train.csv", header = TRUE)
+
 setwd("/Users/Darshan/Documents/Online_News_Popularity")
+
+library(caret)
 source("DataPreprocess.R")
+
+set.seed(464)
+
+
 
 library(ggplot2)
 library(gridExtra)
 library(cowplot)
 library(leaps)
 
-news_train <- read.csv("/Users/Darshan/Documents/CS 7280 Stats/Project/Data/Train.csv", header = TRUE)
+news <- data_cleaning(news)
+news <- correlation_cleaning(news)
 
-news_train <- data_cleaning(news_train)
-news_train <- correlation_cleaning(news_train)
-news_train <- target_transformation(news_train)
-obj <- normalization(news_train)
-news_train <- obj$news_train
-news_train <- cat_encoding(news_train)
+# Can not apply transformation on weighted regression
 
+return_obj <- target_transformation(news)
+news <- return_obj$news
+lamda <- return_obj$lambda
+
+obj <- normalization(news)
+news <- obj$news
+
+news <- cat_encoding(news)
+
+url <- news$url
+news$url <- NULL
+
+#news <- cook_outliers_removal(news)
+news_train <- news
 # Shares vs Data Channel
 news_train$data_channel = factor(news_train$data_channel, levels = 0:6,
   labels = c("No Channel", "Lifestyle", "Entertainment", "Business", "Social Media", "Tech", "World")
@@ -29,28 +50,28 @@ news_train$cat_dow = factor(news_train$cat_dow, levels = 1:7,
 news_train$is_weekend = factor(news_train$is_weekend, levels = 0:1,
   labels = c("No", "Yes")
 )
-
-
-ggplot(news_train, aes(data_channel, shares)) + geom_boxplot(aes(fill = data_channel)) +  ylab("Shares") + xlab("Data Channels")
-
-
-ggplot(news_train, aes(data_channel, shares)) + geom_boxplot(aes(fill = data_channel)) +  coord_flip() +ylab("Shares") + xlab("Data Channels")
-
-ggplot(news_train, aes(is_weekend, shares)) + geom_boxplot(aes(fill = is_weekend)) +  coord_flip() +ylab("Shares") + xlab("Is Weekend?")
-
-ggplot(news_train, aes(cat_dow, shares)) + geom_boxplot(aes(fill = cat_dow))  +ylab("Shares") + xlab("Day of week")
-
-p1 <- ggplot(news_train, aes(data_channel, LDA_00)) + geom_boxplot(aes(fill = data_channel)) +  ylab("LDA_00") + xlab("Data Channels") + theme(legend.position="none")
-#coord_flip() +
-p2 <- ggplot(news_train, aes(data_channel, LDA_01)) + geom_boxplot(aes(fill = data_channel)) + ylab("LDA_01") + xlab("Data Channels") + theme(legend.position="none")
-
-p3 <- ggplot(news_train, aes(data_channel, LDA_02)) + geom_boxplot(aes(fill = data_channel))  + ylab("LDA_02") + xlab("Data Channels") + theme(legend.position="none")
-
-p4 <- ggplot(news_train, aes(data_channel, LDA_03)) + geom_boxplot(aes(fill = data_channel)) + ylab("LDA_03") + xlab("Data Channels") + theme(legend.position="none")
-
-p5 <- ggplot(news_train, aes(data_channel, LDA_04)) + geom_boxplot(aes(fill = data_channel)) + ylab("LDA_04") + xlab("Data Channels") + theme(legend.position="none")
-
-grid.arrange(p1, p2, p3, p4, p5, ncol=1, nrow=5)
+# 
+# 
+# ggplot(news_train, aes(data_channel, shares)) + geom_boxplot(aes(fill = data_channel)) +  ylab("Shares") + xlab("Data Channels")
+# 
+# 
+# ggplot(news_train, aes(data_channel, shares)) + geom_boxplot(aes(fill = data_channel)) +  coord_flip() +ylab("Shares") + xlab("Data Channels")
+# 
+# ggplot(news_train, aes(is_weekend, shares)) + geom_boxplot(aes(fill = is_weekend)) +  coord_flip() +ylab("Shares") + xlab("Is Weekend?")
+# 
+# ggplot(news_train, aes(cat_dow, shares)) + geom_boxplot(aes(fill = cat_dow))  +ylab("Shares") + xlab("Day of week")
+# 
+# p1 <- ggplot(news_train, aes(data_channel, LDA_00)) + geom_boxplot(aes(fill = data_channel)) +  ylab("LDA_00") + xlab("Data Channels") + theme(legend.position="none")
+# #coord_flip() +
+# p2 <- ggplot(news_train, aes(data_channel, LDA_01)) + geom_boxplot(aes(fill = data_channel)) + ylab("LDA_01") + xlab("Data Channels") + theme(legend.position="none")
+# 
+# p3 <- ggplot(news_train, aes(data_channel, LDA_02)) + geom_boxplot(aes(fill = data_channel))  + ylab("LDA_02") + xlab("Data Channels") + theme(legend.position="none")
+# 
+# p4 <- ggplot(news_train, aes(data_channel, LDA_03)) + geom_boxplot(aes(fill = data_channel)) + ylab("LDA_03") + xlab("Data Channels") + theme(legend.position="none")
+# 
+# p5 <- ggplot(news_train, aes(data_channel, LDA_04)) + geom_boxplot(aes(fill = data_channel)) + ylab("LDA_04") + xlab("Data Channels") + theme(legend.position="none")
+# 
+# grid.arrange(p1, p2, p3, p4, p5, ncol=1, nrow=5)
 
 ```
 
@@ -62,17 +83,18 @@ ignored_column_names <- c("url", "timedelta", "data_channel_is_lifestyle",
                           "data_channel_is_world", "data_channel_is_socmed",
                           "data_channel_is_tech", "weekday_is_monday", "weekday_is_tuesday", "weekday_is_wednesday", "weekday_is_thursday", "weekday_is_friday",
                           "weekday_is_saturday", "weekday_is_sunday", "is_weekend", "shares", "data_channel", "cat_dow")
+
 column_names <- names(news_train)
 needed_columns <- setdiff(column_names,ignored_column_names)
 
-data_channel <- 'data_channel'
-shares <- 'shares'
-
-for(column in needed_columns){
-  print(column)
-  p <- ggplot(news_train, aes_string(x=column, y=shares, color=as.name(data_channel))) + stat_smooth(method=lm)
-  plot(p)
-}
+# data_channel <- 'data_channel'
+# shares <- 'shares'
+# 
+# for(column in needed_columns){
+#   print(column)
+#   p <- ggplot(news_train, aes_string(x=column, y=shares, color=as.name(data_channel))) + stat_smooth(method=lm)
+#   plot(p)
+# }
 
 cat_dow<-'cat_dow'
 shares <- 'shares'
@@ -80,6 +102,15 @@ shares <- 'shares'
 for(column in needed_columns){
   print(column)
   p <- ggplot(news_train, aes_string(x=column, y=shares, color=as.name(cat_dow))) + stat_smooth(method=lm)
+  plot(p)
+}
+
+is_weekend<-'is_weekend'
+shares <- 'shares'
+
+for(column in needed_columns){
+  print(column)
+  p <- ggplot(news_train, aes_string(x=column, y=shares, color=as.name(is_weekend))) + stat_smooth(method=lm)
   plot(p)
 }
 
@@ -105,10 +136,157 @@ for(column in needed_columns){
 # is_weekend<-'is_weekend'
 # 
 # for(i in seq_along(needed_columns)){
+#   print(column)
 #   p <- ggplot(news_train,aes_string(x = is_weekend, y=needed_columns[i])) + geom_boxplot(aes(fill = is_weekend))  + coord_flip() + xlab('Is weekend') + theme(legend.position='none')
 #   plot(p)
 # }
 
 
   
+```
+
+Residual Plots
+
+```{r}
+
+train_url <- news_train$url
+news_train$url <- NULL
+
+#news_train$cat_dow <- NULL
+categorical_var <- c("data_channel_is_lifestyle", 
+                     "data_channel_is_entertainment", "data_channel_is_bus", 
+                     "data_channel_is_world", "data_channel_is_socmed", 
+                     "data_channel_is_tech", "weekday_is_monday", "weekday_is_tuesday", 
+                     "weekday_is_wednesday", "weekday_is_thursday", "weekday_is_friday", 
+                     "weekday_is_saturday", "weekday_is_sunday")
+
+#news_train <- subset(news_train, select = setdiff(names(news_train),categorical_var))
+
+#leaps <- regsubsets(shares_transformed ~ 1, data=news_train)
+
+#plot(leaps, scale="adjr2")
+
+# null=lm(shares~1, data=news_train)
+# full=lm(shares~., data=news_train)
+# 
+I(num_hrefs * data_channel_is_socmed)
+I(num_imgs * is_weekend * data_channel_is_socmed)
+I(num_keywords * data_channel_is_socmed)
+I(global_subjectivity * data_channel_is_socmed)
+I(avg_positive_polarity * data_channel_is_socmed)
+I(i_n_unique_tokens_content * data_channel_is_bus)
+I(average_token_length * data_channel_is_entertainment)
+I(min_positive_polarity * data_channel_is_entertainment)
+I(n_tokens_title * weekday_is_tuesday)
+I(num_self_hrefs * is_weekend)
+#I(num_imgs * is_weekend)
+#I(global_rate_negative_words * weekday_is_sunday)
+I(max_negative_polarity * is_weekend)
+#I(i_n_unique_tokens_content * weekday_is_wednesday)
+
+#model <- step(null, scope=list(lower=null, upper=full), direction="forward")
+# model <- lm(shares ~ I(self_reference_avg_sharess^2) + i_kw_max_avg_avg + 
+#              I(num_hrefs * data_channel_is_socmed) +
+#              self_reference_avg_sharess * weekday_is_sunday +
+#              kw_min_avg * is_weekend +
+#              num_keywords * data_channel_is_socmed * is_weekend +
+#              I(global_subjectivity * data_channel_is_socmed) +
+#              I(num_imgs * is_weekend * data_channel_is_socmed) +
+#              kw_min_max * data_channel_is_socmed +
+#              kw_min_max * data_channel_is_lifestyle +
+#              num_self_hrefs * is_weekend +
+#              abs_title_sentiment_polarity +
+#              average_token_length * data_channel_is_entertainment +
+#              abs_title_subjectivity +
+#              min_positive_polarity * data_channel_is_entertainment +
+#              i_kw_max_avg_min +
+#              n_tokens_title * data_channel_is_world +
+#              kw_max_max * weekday_is_saturday +
+#              title_sentiment_polarity +
+#              min_negative_polarity * data_channel_is_bus +
+#              title_subjectivity +
+#              kw_avg_max * data_channel_is_socmed * is_weekend +
+#              global_rate_negative_words +
+#              global_sentiment_polarity +
+#              self_reference_min_shares +
+#              n_unique_tokens +
+#              n_tokens_content * data_channel_is_bus +
+#              rate_positive_words +
+#              global_rate_positive_words, data = news_train)
+# 
+model <- lm(shares ~ data_channel +
+             cat_dow +
+             i_kw_max_avg_avg +
+             self_reference_avg_sharess +
+             i_kw_avg_max_max +
+             num_hrefs +
+             global_subjectivity +
+             LDA_00 +
+             LDA_01 +
+             LDA_02 +
+             num_self_hrefs +
+             i_n_unique_tokens_content +
+             i_title_subjectivity_sentiment_polarity +
+             abs_title_subjectivity +
+             n_tokens_title +
+             min_positive_polarity +
+             num_imgs +
+             average_token_length +
+             title_sentiment_polarity, data=news_train)
+
+for(column in needed_columns){
+  print(column)
+  p <- ggplot(aes_string(x=column,y=model$residuals) ,data=news_train) + geom_point() + stat_smooth()
+  plot(p)
+  }
+```
+
+
+```{r}
+# Target variable exploratory analysis
+#ggplot(news_train, aes(shares)) + geom_histogram(bins = 400)
+#temp_news_train <- news_train[news_train$shares < 10000,]
+#ggplot(temp_news_train, aes(shares)) + geom_histogram(bins=100)
+```
+
+```{r}
+library(ggplot2)
+
+library(gridExtra)
+setwd("/Users/Darshan/Documents/CS 7280 Stats/Project/Data/")
+#setwd("/home/gbakie/neu/stat-sp16/project/data")
+
+news <- read.csv("Train.csv", header = TRUE)
+
+setwd("/Users/Darshan/Documents/Online_News_Popularity")
+source("DataPreprocess.R")
+
+news <- data_cleaning(news)
+news <- correlation_cleaning(news)
+
+news <- cat_encoding(news)
+url <- news$url
+news$url <- NULL
+
+news_wo_outlier <- cook_outliers_removal(news)
+
+return_obj <- target_transformation(news)
+news_transformed <- return_obj$news
+news_lamda <- return_obj$lambda
+
+return_obj <- target_transformation(news_wo_outlier)
+news_wo_outlier_transformed <- return_obj$news
+news_wo_outlier_lamda <- return_obj$lambda
+
+par(mfrow=c(1,4))
+
+p1<-boxplot(news$shares,  ylab="Number of Shares (With Outliers)", col = "orange", col.lab="red", pch=18)
+
+p2<-boxplot(news_wo_outlier$shares,  ylab="Number of Shares (Without Outliers)", col = "orange", col.lab="red", pch=18)
+
+p3<-boxplot(news_transformed$shares,  ylab="Transformed number of Shares (With Outliers)", col = "green", col.lab="blue", pch=18)
+
+p4<-boxplot(news_wo_outlier_transformed$shares,  ylab="Transformed number of Shares (Without Outliers)", col = "green", col.lab="blue", pch=18)
+
+#grid.arrange(p1, p2, ncol = 2, top="Target Varible Boxplot")
 ```
