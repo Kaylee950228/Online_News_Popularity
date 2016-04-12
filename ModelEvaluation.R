@@ -73,13 +73,13 @@ for (i in 1:K) {
                 num_imgs +
                 average_token_length +
                 title_sentiment_polarity + 
-                I(n_tokens_title * weekday_is_tuesday) + 
-                I(average_token_length * data_channel_is_entertainment) + 
-                I(num_hrefs * data_channel_is_socmed) + 
-                I(num_imgs * is_weekend * data_channel_is_socmed) + 
-                I(global_subjectivity * data_channel_is_socmed) + 
-                I(i_n_unique_tokens_content * data_channel_is_bus) +
-                I(min_positive_polarity * data_channel_is_entertainment), data=news_train)
+                n_tokens_title:weekday_is_tuesday + 
+                average_token_length:data_channel_is_entertainment + 
+                num_hrefs:data_channel_is_socmed + 
+                num_imgs:is_weekend:data_channel_is_socmed + 
+                global_subjectivity:data_channel_is_socmed + 
+                i_n_unique_tokens_content:data_channel_is_bus +
+                min_positive_polarity:data_channel_is_entertainment, data=news_train)
   
   pred <- predict(model, news_val)
   
