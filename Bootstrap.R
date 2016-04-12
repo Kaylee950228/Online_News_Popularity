@@ -1,12 +1,12 @@
 setwd("/home/gbakie/neu/stat-sp16/project/Online_News_Popularity")
 #setwd("/Users/Darshan/Documents/Online_News_Popularity")
 
+library(caret)
 source("DataPreprocess.R")
 
+set.seed(464)
 
-set.seed(352)
-
-B = 400
+B = 300
 bootstrap <- function(formula, data) {
   n_rows <- nrow(data)
   
@@ -23,7 +23,7 @@ bootstrap <- function(formula, data) {
   return(models)
 }
 
-
+# stepwise selection
 predictors <- c("data_channel", "cat_dow", "i_kw_max_avg_avg",
                 "self_reference_avg_sharess", "i_kw_avg_max_max",
                 "num_hrefs", "global_subjectivity", "LDA_00", 
@@ -63,8 +63,10 @@ for (i in 1:length(models)) {
   }
 }
 
-full_coef <- vector(mode="list", length=30)
 full_model <- lm(formula, data=news)
+full_coef <- vector(mode="list", length=30)
+predictor_names <- names(full_model$coefficients)
+
 for (i in 1:N_COEF) {
   full_coef[[i]] <- coef(full_model)[[i]]
 }
@@ -80,6 +82,14 @@ for (i in 1:N_COEF) {
   upper_value <-  full_coef[[i]] - d2
   lower_value <- full_coef[[i]] + d1
   
-  cat(sprintf("lower_value = %f, upper_value = %f\n", lower_value, upper_value))  
+  cat(sprintf("predictor: %s, lower_value = %f, upper_value = %f\n", predictor_names[i], lower_value, upper_value))  
 }
 
+pred <- matrix(nrow = nrow(news), ncol=B)
+for (i in 1:length(models)) {
+  m <- models[[i]]
+  pred[,i] <- predict(m, subset(news,select=-shares))
+}
+
+sse <- sum((rowMeans(pred) - news$shares)**2)
+rmse <- sqrt(sse / nrow(news))
