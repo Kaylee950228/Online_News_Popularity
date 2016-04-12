@@ -78,8 +78,8 @@ correlation_cleaning <- function(news){
   # High collinearity after applying log transformation on kw_min_avg and kw_min_max
   # Log transformation has improved the r-squared value
   #news$i_kw_min_avg_max <- (news$kw_min_avg + news$kw_min_max) / 2.0
-  news$kw_min_avg<- NULL
-  #news$kw_min_max<- NULL
+  #news$kw_min_avg<- NULL
+  news$kw_min_max<- NULL
   
   # High collinearity after applying log transformation on kw_avg_max and kw_max_max
   # Log transformation has improved the r-squared value

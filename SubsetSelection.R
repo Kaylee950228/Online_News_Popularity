@@ -1,3 +1,49 @@
+#setwd("/home/gbakie/neu/stat-sp16/project/Online_News_Popularity")
+setwd("/Users/Darshan/Documents/Online_News_Popularity")
+
+library(caret)
+source("DataPreprocess.R")
+
+set.seed(464)
+
+setwd("/Users/Darshan/Documents/CS 7280 Stats/Project/Data/")
+#setwd("/home/gbakie/neu/stat-sp16/project/data")
+
+news <- read.csv("Train.csv", header = TRUE)
+
+news <- data_cleaning(news)
+news <- correlation_cleaning(news)
+
+# Can not apply transformation on weighted regression
+
+return_obj <- target_transformation(news)
+news <- return_obj$news
+lamda <- return_obj$lambda
+
+obj <- normalization(news)
+news <- obj$news
+
+news <- cat_encoding(news)
+
+url <- news$url
+news$url <- NULL
+
+categorical_var <- c("data_channel_is_lifestyle", 
+                     "data_channel_is_entertainment", "data_channel_is_bus", 
+                     "data_channel_is_world", "data_channel_is_socmed", 
+                     "data_channel_is_tech", "weekday_is_monday", "weekday_is_tuesday", 
+                     "weekday_is_wednesday", "weekday_is_thursday", "weekday_is_friday", 
+                     "weekday_is_saturday", "weekday_is_sunday")
+
+news_with_cat <- subset(news, select = categorical_var)
+
+news <- subset(news, select = setdiff(names(news),categorical_var))
+
+#news <- cook_outliers_removal(news)
+
+K <- 10
+
+folds <- createFolds(news$shares, k = K, list=TRUE, returnTrain=TRUE)
 
 model.summaries <- list()
 min.bic.index <- c()
@@ -10,35 +56,36 @@ for (i in 1:K) {
   news_train <- news[folds[[i]],]
   news_val <- news[-folds[[i]],]
   
-  model <- regsubsets(shares ~ i_title_subjectivity_sentiment_polarity +
-                        data_channel +
-                        i_kw_max_avg_avg +
+  model <- regsubsets(shares ~ data_channel +
                         cat_dow +
+                        i_kw_max_avg_avg +
                         self_reference_avg_sharess +
-                        num_hrefs +
                         i_kw_avg_max_max +
+                        num_hrefs +
+                        global_subjectivity +
                         LDA_00 +
+                        LDA_01 +
+                        LDA_02 +
                         num_self_hrefs +
                         i_n_unique_tokens_content +
-                        global_subjectivity +
-                        LDA_02 +
+                        i_title_subjectivity_sentiment_polarity +
+                        abs_title_subjectivity +
+                        n_tokens_title +
                         min_positive_polarity +
                         num_imgs +
-                        LDA_04 +
-                        title_sentiment_polarity +
-                        max_negative_polarity +
-                        abs_title_subjectivity + 
+                        average_token_length +
+                        title_sentiment_polarity + 
+                        global_rate_negative_words +
+                        i_rate_pos_glob_sent_polarity +
+                        i_min_avg_negative_pol +
+                        num_keywords +
                         i_rate_pos_glob_sent_polarity +
                         global_rate_negative_words +
                         global_rate_positive_words +
-                        num_keywords +
+                        i_kw_min_avg_max +
                         num_videos +
-                        average_token_length +
-                        avg_positive_polarity +
-                        i_min_avg_negative_pol +
-                        LDA_01 +
-                        LDA_03, nbest = 1, nvmax = 38, 
-                      data=news_train, force.in = c(1:28), 
+                        max_negative_polarity, nbest = 1, nvmax = 38, 
+                      data=news_train, force.in = c(1:39), 
                       method = "exhaustive", really.big = TRUE)
   
   summary.model <- summary(model)
