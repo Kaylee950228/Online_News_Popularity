@@ -3,14 +3,15 @@ library(car)
 
 data_cleaning <- function(news){
   
-  news$timedelta <- NULL  
-  #news <- news[news$n_tokens_content != 0,]
+  news$timedelta <- NULL
+  # Removing instances which don't have any text content in it.
   news <- filter(news, n_tokens_content != 0)
-  news$n_non_stop_words <- NULL
-  news$kw_min_min <- NULL
-  #news <- news[news_train$n_unique_tokens < 701,]
-  news <- filter(news, n_unique_tokens < 701)
-  news <- filter(news, kw_min_avg >= 0, kw_avg_min>=0)
+  
+  news$n_non_stop_words <- NULL # Constanct predictor
+  news$kw_min_min <- NULL # More than 50% instances contain -1 value
+  news <- filter(news, n_unique_tokens <= 1) # Outlier value greater than 1
+  
+  news <- filter(news, kw_min_avg >= 0, kw_avg_min>=0) # Outlier value less than 1
 
   news$LDA_00 <- log(news$LDA_00 + 1)
   news$LDA_01 <- log(news$LDA_01 + 1)
@@ -76,9 +77,9 @@ correlation_cleaning <- function(news){
   
   # High collinearity after applying log transformation on kw_min_avg and kw_min_max
   # Log transformation has improved the r-squared value
-  news$i_kw_min_avg_max <- (news$kw_min_avg + news$kw_min_max) / 2.0
+  #news$i_kw_min_avg_max <- (news$kw_min_avg + news$kw_min_max) / 2.0
   news$kw_min_avg<- NULL
-  news$kw_min_max<- NULL
+  #news$kw_min_max<- NULL
   
   # High collinearity after applying log transformation on kw_avg_max and kw_max_max
   # Log transformation has improved the r-squared value
@@ -193,8 +194,26 @@ outliers_removal <- function(news) {
   cut_low_point <- as.integer(OUTLIERS_LOW_CUTOFF*num_rows)
   cut_high_point <- as.integer((1-OUTLIERS_HIGH_CUTOFF)*num_rows)
   sorted_news <- sorted_news[cut_low_point:cut_high_point, ]
-  
+  news <- sorted_news[sample(nrow(sorted_news)),]
   return(sorted_news)
+}
+
+cook_outliers_removal <- function(news){
+  
+  cutoff <- 4/nrow(news)
+  model <- lm(shares ~ ., data=news)
+  infl <- lm.influence(model, do.coef = FALSE)
+  
+  cooks.distance <- cooks.distance(model, infl = infl,
+                                   res = weighted.residuals(model),
+                                   sd = sqrt(deviance(model)/df.residual(model)),
+                                   hat = infl$hat)
+  
+  index <- cooks.distance <= cutoff
+  news <- news[index,]
+  
+  return(news)
+  
 }
 
 #setwd("/Users/Darshan/Documents/Online_News_Popularity")
