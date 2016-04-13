@@ -1,0 +1,30 @@
+num_hrefs +
+num_self_hrefs +
+num_imgs +
+self_reference_avg_sharess +
+LDA_00 +
+LDA_02 +
+global_subjectivity +
+global_rate_positive_words +
+global_rate_negative_words +
+min_positive_polarity +
+max_negative_polarity +
+title_sentiment_polarity +
+abs_title_subjectivity +
+i_n_unique_tokens_content +
+i_rate_pos_glob_sent_polarity +
+i_kw_max_avg_avg +
+i_kw_avg_max_max +
+cat_dow +
+data_channel +
+
+
+num_keywords +
+LDA_04 +
+num_videos +
+average_token_length +
+avg_positive_polarity +
+i_min_avg_negative_pol +
+LDA_01 +
+LDA_03 +
+i_title_subjectivity_sentiment_polarity
