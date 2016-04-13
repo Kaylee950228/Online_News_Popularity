@@ -144,6 +144,7 @@ summary(lm(shares ~ data_channel +
              num_imgs +
              average_token_length +
              title_sentiment_polarity + 
+             i_min_avg_negative_pol +
              n_tokens_title:weekday_is_tuesday +
              average_token_length:data_channel_is_entertainment + 
              num_hrefs:data_channel_is_socmed + 
