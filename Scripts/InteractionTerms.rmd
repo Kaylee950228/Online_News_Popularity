@@ -41,7 +41,8 @@ news_with_cat <- subset(news, select = categorical_var)
 
 news <- subset(news, select = setdiff(names(news),categorical_var))
 
-#news <- cook_outliers_removal(news)
+news <- cook_outliers_removal(news)
+
 
 ignored_column_names <- c("url", "timedelta", "data_channel_is_lifestyle",
                           "data_channel_is_entertainment", "data_channel_is_bus",
@@ -49,24 +50,36 @@ ignored_column_names <- c("url", "timedelta", "data_channel_is_lifestyle",
                           "data_channel_is_tech", "weekday_is_monday", "weekday_is_tuesday", "weekday_is_wednesday", "weekday_is_thursday", "weekday_is_friday",
                           "weekday_is_saturday", "weekday_is_sunday", "is_weekend", "shares", "data_channel", "cat_dow")
 
-column_names <- names(news_train)
+column_names <- names(news)
 needed_columns <- setdiff(column_names,ignored_column_names)
 
-# data_channel <- 'data_channel'
-# shares <- 'shares'
-# 
-# for(column in needed_columns){
-#   print(column)
-#   p <- ggplot(news_train, aes_string(x=column, y=shares, color=as.name(data_channel))) + stat_smooth(method=lm)
-#   plot(p)
-# }
+news$data_channel = factor(news$data_channel, levels = 0:6,
+  labels = c("No Channel", "Lifestyle", "Entertainment", "Business", "Social Media", "Tech", "World")
+)
+
+news$cat_dow = factor(news$cat_dow, levels = 1:7,
+  labels = c("Monday", "Tuesday", "Wednesday", "Thurday", "Friday", "Saturday", "Sunday")
+)
+
+news$is_weekend = factor(news$is_weekend, levels = 0:1,
+  labels = c("No", "Yes")
+)
+
+data_channel <- 'data_channel'
+shares <- 'shares'
+
+for(column in needed_columns){
+  print(column)
+  p <- ggplot(news, aes_string(x=column, y=shares, color=as.name(data_channel))) + stat_smooth(method=lm)
+  plot(p)
+}
 
 cat_dow<-'cat_dow'
 shares <- 'shares'
 
 for(column in needed_columns){
   print(column)
-  p <- ggplot(news_train, aes_string(x=column, y=shares, color=as.name(cat_dow))) + stat_smooth(method=lm)
+  p <- ggplot(news, aes_string(x=column, y=shares, color=as.name(cat_dow))) + stat_smooth(method=lm)
   plot(p)
 }
 
@@ -75,7 +88,7 @@ shares <- 'shares'
 
 for(column in needed_columns){
   print(column)
-  p <- ggplot(news_train, aes_string(x=column, y=shares, color=as.name(is_weekend))) + stat_smooth(method=lm)
+  p <- ggplot(news, aes_string(x=column, y=shares, color=as.name(is_weekend))) + stat_smooth(method=lm)
   plot(p)
 }
 
@@ -107,4 +120,16 @@ for(column in needed_columns){
 # }
 
 
+# Interaction Terms
+# num_hrefs:data_channel_is_socmed
+# num_imgs:is_weekend:data_channel_is_socmed
+# num_keywords:data_channel_is_socmed
+# global_subjectivity:data_channel_is_socmed
+# avg_positive_polarity:data_channel_is_socmed
+# i_n_unique_tokens_content:data_channel_is_bus
+# average_token_length:data_channel_is_entertainment
+# min_positive_polarity:data_channel_is_entertainment
+# n_tokens_title:weekday_is_tuesday
+# num_self_hrefs:is_weekend
+# max_negative_polarity:is_weekend
 ```

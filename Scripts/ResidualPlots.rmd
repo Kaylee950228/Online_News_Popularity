@@ -1,0 +1,76 @@
+```{r}
+
+#setwd("/home/gbakie/neu/stat-sp16/project/Online_News_Popularity")
+setwd("/Users/Darshan/Documents/Online_News_Popularity")
+
+library(caret)
+library(ggplot2)
+library(grid)
+library(gridExtra)
+source("DataPreprocess.R")
+
+set.seed(464)
+
+setwd("/Users/Darshan/Documents/CS 7280 Stats/Project/Data/")
+#setwd("/home/gbakie/neu/stat-sp16/project/data")
+
+news <- read.csv("Train.csv", header = TRUE)
+
+news <- data_cleaning(news)
+news <- correlation_cleaning(news)
+
+# Can not apply transformation on weighted regression
+
+# return_obj <- target_transformation(news)
+# news <- return_obj$news
+# lamda <- return_obj$lambda
+
+obj <- normalization(news)
+news <- obj$news
+
+news <- cat_encoding(news)
+
+url <- news$url
+news$url <- NULL
+
+categorical_var <- c("data_channel_is_lifestyle", 
+                     "data_channel_is_entertainment", "data_channel_is_bus", 
+                     "data_channel_is_world", "data_channel_is_socmed", 
+                     "data_channel_is_tech", "weekday_is_monday", "weekday_is_tuesday", 
+                     "weekday_is_wednesday", "weekday_is_thursday", "weekday_is_friday", 
+                     "weekday_is_saturday", "weekday_is_sunday")
+
+news_with_cat <- subset(news, select = categorical_var)
+news <- subset(news, select = setdiff(names(news),categorical_var))
+
+news_wo_outlier <- cook_outliers_removal(news)
+
+model <- lm(shares ~ ., data=news)
+
+news$res <- abs(model$residuals)
+news$pre <- predict(model, data=news)
+
+model <- lm(shares ~ ., data=news_wo_outlier)
+
+news_wo_outlier$res <- abs(model$residuals)
+news_wo_outlier$pre <- predict(model, data=news_wo_outlier)
+
+
+# df <- data.frame(x = news$pre, y = news$res,
+#   d = densCols(news$pre, news$res , colramp = colorRampPalette(rev(rainbow(10, end = 4/6)))))
+# p <- ggplot(df) +
+#     geom_point(aes(x, y, col = d), size = 1) +
+#     scale_color_identity() +
+#     theme_bw()
+# print(p)
+
+#ggplot(aes(x=pre,y=res) ,data=news)  +  geom_point() + scale_colour_gradient(limits=c(1, 5), #low="red")
+
+p1 <- ggplot(aes(x=pre,y=res) ,data=news)  +  geom_point() + xlab("Predicted Number of Shares (With Outliers)") + ylab("abs(Residual)") + stat_binhex(bins = 75)  + geom_smooth(color = "red") + theme(axis.title=element_text(size=9,face="bold"))
+
+p2 <- ggplot(aes(x=pre,y=res) ,data=news_wo_outlier)  +  geom_point() + xlab("Predicted Number of Shares (Without Outliers)") + ylab("abs(Residual)") + stat_binhex(bins = 75)  + geom_smooth(color = "red") + theme(axis.title=element_text(size=9,face="bold"))
+
+grid.arrange(p1, p2, ncol = 2, top = "Residual vs Predicted Target Plots")
+#qplot(pre, res, data = news, geom="hex",binwidth = c(0.1, 0.1))
+
+```
