@@ -54,8 +54,9 @@ news_train$n_non_stop_words <- NULL
 ```
 
 928 features which has zero number of content are removed for simplicity
+```{r}
 news_train <- news_train[news_train$n_tokens_content != 0,]
-
+```
 
 too many outliers in number of links and few outliers in number of self reference in the news article
 ```{r}
@@ -179,9 +180,20 @@ boxplot(news_train$global_rate_negative_words)
 
 
 ```{r}
+# BoxCox Tranformation
+
 library(car)
 p<-powerTransform(news_train$shares)
-y<-bcPower(news_train$shares,p$lambda)
-qqnorm(y)
-qqnorm(y) + qqline(y)
+shares_transformed <-bcPower(news_train$shares,p$lambda)
+qqnorm(shares_transformed)
+qqnorm(shares_transformed) + qqline(shares_transformed)
+```
+
+```{r}
+# Shares target variable outliers
+
+head(sort(news_train$shares, decreasing = TRUE), n = 30)
+head(sort(news_train$shares, decreasing = FALSE), n = 30)
+
+
 ```

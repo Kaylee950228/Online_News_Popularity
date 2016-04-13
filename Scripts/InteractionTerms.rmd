@@ -1,0 +1,110 @@
+```{r}
+
+#setwd("/home/gbakie/neu/stat-sp16/project/Online_News_Popularity")
+setwd("/Users/Darshan/Documents/Online_News_Popularity")
+
+library(caret)
+source("DataPreprocess.R")
+
+set.seed(464)
+
+setwd("/Users/Darshan/Documents/CS 7280 Stats/Project/Data/")
+#setwd("/home/gbakie/neu/stat-sp16/project/data")
+
+news <- read.csv("Train.csv", header = TRUE)
+
+news <- data_cleaning(news)
+news <- correlation_cleaning(news)
+
+# Can not apply transformation on weighted regression
+
+return_obj <- target_transformation(news)
+news <- return_obj$news
+lamda <- return_obj$lambda
+
+obj <- normalization(news)
+news <- obj$news
+
+news <- cat_encoding(news)
+
+url <- news$url
+news$url <- NULL
+
+categorical_var <- c("data_channel_is_lifestyle", 
+                     "data_channel_is_entertainment", "data_channel_is_bus", 
+                     "data_channel_is_world", "data_channel_is_socmed", 
+                     "data_channel_is_tech", "weekday_is_monday", "weekday_is_tuesday", 
+                     "weekday_is_wednesday", "weekday_is_thursday", "weekday_is_friday", 
+                     "weekday_is_saturday", "weekday_is_sunday")
+
+news_with_cat <- subset(news, select = categorical_var)
+
+news <- subset(news, select = setdiff(names(news),categorical_var))
+
+#news <- cook_outliers_removal(news)
+
+ignored_column_names <- c("url", "timedelta", "data_channel_is_lifestyle",
+                          "data_channel_is_entertainment", "data_channel_is_bus",
+                          "data_channel_is_world", "data_channel_is_socmed",
+                          "data_channel_is_tech", "weekday_is_monday", "weekday_is_tuesday", "weekday_is_wednesday", "weekday_is_thursday", "weekday_is_friday",
+                          "weekday_is_saturday", "weekday_is_sunday", "is_weekend", "shares", "data_channel", "cat_dow")
+
+column_names <- names(news_train)
+needed_columns <- setdiff(column_names,ignored_column_names)
+
+# data_channel <- 'data_channel'
+# shares <- 'shares'
+# 
+# for(column in needed_columns){
+#   print(column)
+#   p <- ggplot(news_train, aes_string(x=column, y=shares, color=as.name(data_channel))) + stat_smooth(method=lm)
+#   plot(p)
+# }
+
+cat_dow<-'cat_dow'
+shares <- 'shares'
+
+for(column in needed_columns){
+  print(column)
+  p <- ggplot(news_train, aes_string(x=column, y=shares, color=as.name(cat_dow))) + stat_smooth(method=lm)
+  plot(p)
+}
+
+is_weekend<-'is_weekend'
+shares <- 'shares'
+
+for(column in needed_columns){
+  print(column)
+  p <- ggplot(news_train, aes_string(x=column, y=shares, color=as.name(is_weekend))) + stat_smooth(method=lm)
+  plot(p)
+}
+
+
+# data_channel<- 'data_channel'
+# 
+# for(i in seq_along(needed_columns)){
+#   p <- ggplot(news_train,aes_string(x = data_channel, y=needed_columns[i])) + 
+#     geom_boxplot(aes(fill = data_channel))  + coord_flip() + xlab('Data Channels') + theme(legend.position='none')
+#   plot(p)
+# }
+# 
+# 
+#   
+# cat_dow<-'cat_dow'
+# 
+# for(i in seq_along(needed_columns)){
+#   p <- ggplot(news_train,aes_string(x = cat_dow, y=needed_columns[i])) + #geom_boxplot(aes(fill = cat_dow))  + coord_flip() + xlab('Day of week') + theme(legend.position='none')
+#   plot(p)
+# }
+# 
+#   
+# is_weekend<-'is_weekend'
+# 
+# for(i in seq_along(needed_columns)){
+#   print(column)
+#   p <- ggplot(news_train,aes_string(x = is_weekend, y=needed_columns[i])) + geom_boxplot(aes(fill = is_weekend))  + coord_flip() + xlab('Is weekend') + theme(legend.position='none')
+#   plot(p)
+# }
+
+
+```

@@ -1,0 +1,24 @@
+
+```{r}
+library(leaps)
+library(car)
+news_train <- read.csv("/Users/Darshan/Documents/CS 7280 Stats/Project/Data/Cleaned_Cor_Train.csv", header = TRUE)
+
+train_url <- news_train$url
+train_timedelta <- news_train$timedelta
+
+news_train$timedelta <- NULL
+news_train$url <- NULL
+news_train$data_channel <- NULL
+news_train$cat_dow <- NULL
+
+p<-powerTransform(news_train$shares)
+shares_transformed <-bcPower(news_train$shares,p$lambda)
+
+news_train$shares <- shares_transformed
+
+regfit.full <- regsubsets(shares ~ ., data=news_train, really.big = TRUE)
+reg.summary <- summary(regfit.full)
+reg.summary
+
+```

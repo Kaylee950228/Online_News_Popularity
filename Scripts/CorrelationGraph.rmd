@@ -1,27 +1,54 @@
 ```{r}
 library(corrplot)
+#setwd("/home/gbakie/neu/stat-sp16/project/Online_News_Popularity")
 setwd("/Users/Darshan/Documents/Online_News_Popularity")
+
+library(caret)
 source("DataPreprocess.R")
 
-setwd("/Users/Darshan/Documents/CS 7280 Stats/Project/Data")
+set.seed(464)
 
+setwd("/Users/Darshan/Documents/CS 7280 Stats/Project/Data/")
+#setwd("/home/gbakie/neu/stat-sp16/project/data")
 
-news_train <- read.csv("Train.csv", header = TRUE)
-news_train <- data_cleaning(news_train)
-news_train <- correlation_cleaning(news_train)
+news <- read.csv("Train.csv", header = TRUE)
 
-train_url <- news_train$url
-news_train$url <- NULL
+news <- data_cleaning(news)
+news <- correlation_cleaning(news)
 
-#news_train$cat_dow <- NULL
+# Can not apply transformation on weighted regression
+
+return_obj <- target_transformation(news)
+news <- return_obj$news
+lamda <- return_obj$lambda
+
+obj <- normalization(news)
+news <- obj$news
+
+news <- cat_encoding(news)
+
+url <- news$url
+news$url <- NULL
+
 categorical_var <- c("data_channel_is_lifestyle", 
                      "data_channel_is_entertainment", "data_channel_is_bus", 
                      "data_channel_is_world", "data_channel_is_socmed", 
                      "data_channel_is_tech", "weekday_is_monday", "weekday_is_tuesday", 
                      "weekday_is_wednesday", "weekday_is_thursday", "weekday_is_friday", 
-                     "weekday_is_saturday", "weekday_is_sunday", "is_weekend")
+                     "weekday_is_saturday", "weekday_is_sunday")
 
-news_train <- subset(news_train, select = setdiff(names(news_train),categorical_var))
+news_with_cat <- subset(news, select = categorical_var)
+
+news <- subset(news, select = setdiff(names(news),categorical_var))
+news <- cook_outliers_removal(news)
+
+news_train_matrix <- as.matrix(news_train)
+news_train_cor <- cor(news_train_matrix)
+
+corrplot(news_train_cor, type  = "lower", diag = FALSE, tl.cex=0.75)
+
+news_train <- correlation_cleaning(news_train)
+
 
 news_train_matrix <- as.matrix(news_train)
 news_train_cor <- cor(news_train_matrix)
