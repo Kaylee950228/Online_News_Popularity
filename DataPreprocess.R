@@ -53,8 +53,8 @@ correlation_cleaning <- function(news){
   news$n_unique_tokens <- NULL
   news$n_tokens_content <- NULL
   
-  news$i_title_subjectivity_sentiment_polarity <- (news$title_subjectivity + 
-                                                     news$abs_title_sentiment_polarity) / 2.0
+  news$i_title_sub_sent_polarity <- (news$title_subjectivity + 
+                                       news$abs_title_sentiment_polarity) / 2.0
   # 0.71 colinearity between title_subjectivity and abs_title_sentiment_polarity
   
   news$title_subjectivity <- NULL
@@ -67,7 +67,7 @@ correlation_cleaning <- function(news){
   news$avg_negative_polarity <- NULL
   
   # 0.779 colinearity between rate_positive_words and global_sentiment_polarity
-  news$i_rate_pos_glob_sent_polarity <- (news$rate_positive_words * 
+  news$i_rate_pos_gsent_polarity <- (news$rate_positive_words * 
                                            news$global_sentiment_polarity)
   news$rate_positive_words <- NULL
   news$global_sentiment_polarity <- NULL
