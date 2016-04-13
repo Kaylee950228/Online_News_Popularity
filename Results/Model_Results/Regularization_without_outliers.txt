@@ -1,0 +1,14 @@
+alpha = 0.000000, lambda = 0.000010, avg rmse = 0.165797, sd rmse = 0.005425, avg R-2 = 0.102772
+alpha = 0.000000, lambda = 0.000100, avg rmse = 0.165797, sd rmse = 0.005424, avg R-2 = 0.102771
+alpha = 0.000000, lambda = 0.001000, avg rmse = 0.165792, sd rmse = 0.005417, avg R-2 = 0.102753
+alpha = 0.000000, lambda = 0.010000, avg rmse = 0.165827, sd rmse = 0.005401, avg R-2 = 0.102106
+alpha = 0.000000, lambda = 0.100000, avg rmse = 0.166863, sd rmse = 0.005416, avg R-2 = 0.089923
+alpha = 0.000000, lambda = 1.000000, avg rmse = 0.171070, sd rmse = 0.005489, avg R-2 = 0.042323
+alpha = 0.000000, lambda = 10.000000, avg rmse = 0.174178, sd rmse = 0.005499, avg R-2 = 0.006890
+alpha = 1.000000, lambda = 0.000010, avg rmse = 0.165797, sd rmse = 0.005424, avg R-2 = 0.102770
+alpha = 1.000000, lambda = 0.000100, avg rmse = 0.165794, sd rmse = 0.005421, avg R-2 = 0.102723
+alpha = 1.000000, lambda = 0.001000, avg rmse = 0.165835, sd rmse = 0.005445, avg R-2 = 0.101516
+alpha = 1.000000, lambda = 0.010000, avg rmse = 0.168569, sd rmse = 0.005471, avg R-2 = 0.070364
+alpha = 1.000000, lambda = 0.100000, avg rmse = 0.174777, sd rmse = 0.005497, avg R-2 = 0.000000
+alpha = 1.000000, lambda = 1.000000, avg rmse = 0.174777, sd rmse = 0.005497, avg R-2 = 0.000000
+alpha = 1.000000, lambda = 10.000000, avg rmse = 0.174777, sd rmse = 0.005497, avg R-2 = 0.000000

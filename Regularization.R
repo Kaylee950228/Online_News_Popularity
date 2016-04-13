@@ -11,9 +11,9 @@ select_model <- function(news, t_lambda) {
   K = 10
   
   # alpha = 0 -> Ridge; alpha = 1 -> Lasso
-  alphas = seq(0,1,0.1)
+  alphas = c(0,1)
   #alphas = c(1)
-  lambdas = c(1e-05, 1e-04, 1e-03, 1e-02, 0.1, 1.)
+  lambdas = c(1e-05, 1e-04, 1e-03, 1e-02, 0.1, 1.,10.)
   
   folds <- createFolds(news$shares, k = K, list=TRUE, returnTrain=TRUE)
   
@@ -70,8 +70,14 @@ select_model <- function(news, t_lambda) {
     }
   }
 
-  # Best model without outliers : 
-  # LASSO alpha = 1.000000, lambda = 0.000010, avg rmse = 0.133560, sd rmse = 0.001593, avg R-2 = 0.172663  
+  # Best LASSO model without outliers : 
+  # alpha = 1.000000, lambda = 0.000010, avg rmse = 0.133560, sd rmse = 0.001593, avg R-2 = 0.172663  
+  # Best LASSO model with outliers:
+  # alpha = 1.000000, lambda = 0.000100, avg rmse = 0.164178, sd rmse = 0.005667, avg R-2 = 0.120495
+  # Best RIDGE model without outliers:
+  # alpha = 0.000000, lambda = 0.001000, avg rmse = 0.133558, sd rmse = 0.001585, avg R-2 = 0.172639
+  # Best RIDGE model with outlier:
+  # alpha = 0.000000, lambda = 0.001000, avg rmse = 0.164184, sd rmse = 0.005661, avg R-2 = 0.120518
 }
 
 
@@ -80,7 +86,6 @@ setwd("/home/gbakie/neu/stat-sp16/project/data")
 
 news <- read.csv("Train.csv", header = TRUE)
 
-#news <- outliers_removal(news)
 news <- data_cleaning(news)
 
 news <- correlation_cleaning(news)
@@ -90,12 +95,12 @@ news <- obj$news
 
 #obj <- normalization(news)
 #news <- obj$news
-#news <- cat_encoding(news)
+news <- cat_encoding(news)
 
 url <- news$url
 news$url <- NULL
 
-news <- cook_outliers_removal(news)
+#news <- cook_outliers_removal(news)
 
 categorical_var <- c("data_channel_is_lifestyle", 
                      "data_channel_is_entertainment", "data_channel_is_bus", 
@@ -104,13 +109,13 @@ categorical_var <- c("data_channel_is_lifestyle",
                      "weekday_is_wednesday", "weekday_is_thursday", "weekday_is_friday", 
                      "weekday_is_saturday", "weekday_is_sunday")
 
-#news <- subset(news, select = setdiff(names(news),categorical_var))
+news <- subset(news, select = setdiff(names(news),categorical_var))
 
-#select_model(news, t_lambda)
+select_model(news, t_lambda)
 
-
+ 
 X_train <- data.matrix(subset(news,select=-shares))
 y_train <- data.matrix(news$shares)
-
+ 
 model <- glmnet(X_train, y_train, family="gaussian", alpha=1., standardize=TRUE, 
-                lambda=0.00001, nlambda=1)
+                 lambda=0.001, nlambda=1)
