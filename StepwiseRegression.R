@@ -14,8 +14,6 @@ news <- read.csv("Train.csv", header = TRUE)
 news <- data_cleaning(news)
 news <- correlation_cleaning(news)
 
-# Can not apply transformation on weighted regression
-
 return_obj <- target_transformation(news)
 news <- return_obj$news
 lamda <- return_obj$lambda
@@ -37,7 +35,7 @@ categorical_var <- c("data_channel_is_lifestyle",
 
 news_with_cat <- subset(news, select = categorical_var)
 
-#news <- subset(news, select = setdiff(names(news),categorical_var))
+news <- subset(news, select = setdiff(names(news),categorical_var))
 
 news <- cook_outliers_removal(news)
 
@@ -104,7 +102,7 @@ R2s
 mean(rmses)
 mean(R2s)
 
-# Best Model With outlier
+# Best stepwise model with outliers
 summary(lm(shares ~ data_channel +
              cat_dow +
              i_kw_max_avg_avg +
@@ -117,55 +115,126 @@ summary(lm(shares ~ data_channel +
              LDA_02 +
              num_self_hrefs +
              i_n_unique_tokens_content +
-             i_title_subjectivity_sentiment_polarity +
+             i_title_sub_sent_polarity +
              abs_title_subjectivity +
              n_tokens_title +
              min_positive_polarity +
              num_imgs +
              average_token_length +
              title_sentiment_polarity + 
-             I(n_tokens_title * weekday_is_tuesday) + 
-             I(average_token_length * data_channel_is_entertainment) + 
-             I(num_hrefs * data_channel_is_socmed) + 
-             I(num_imgs * is_weekend * data_channel_is_socmed) + 
-             I(global_subjectivity * data_channel_is_socmed) + 
-             I(i_n_unique_tokens_content * data_channel_is_bus) +
-             I(min_positive_polarity * data_channel_is_entertainment), data=news))
+             i_min_avg_negative_pol, data=news))
 
-# Interaction terms for dataset with outlier
-I(n_tokens_title * weekday_is_tuesday)
-I(average_token_length * data_channel_is_entertainment)
-# Interaction terms common in both the dataset
-I(num_hrefs * data_channel_is_socmed)
-I(num_imgs * is_weekend * data_channel_is_socmed)
-I(global_subjectivity * data_channel_is_socmed)
-I(i_n_unique_tokens_content * data_channel_is_bus)
-I(min_positive_polarity * data_channel_is_entertainment)
-# Interaction terms for dataset without outlier
-I(num_self_hrefs * is_weekend)
-
-
-# Best Model with out Outlier 
-summary(lm(shares ~ i_title_subjectivity_sentiment_polarity +
-             data_channel +
-             i_kw_max_avg_avg +
+# Best stepwise model with outliers and interaction
+summary(lm(shares ~ data_channel +
              cat_dow +
+             i_kw_max_avg_avg +
              self_reference_avg_sharess +
-             num_hrefs +
              i_kw_avg_max_max +
+             num_hrefs +
+             global_subjectivity +
              LDA_00 +
+             LDA_01 +
+             LDA_02 +
              num_self_hrefs +
              i_n_unique_tokens_content +
-             global_subjectivity +
-             LDA_02 +
+             i_title_sub_sent_polarity +
+             abs_title_subjectivity +
+             n_tokens_title +
              min_positive_polarity +
              num_imgs +
-             LDA_04 +
-             title_sentiment_polarity +
+             average_token_length +
+             title_sentiment_polarity + 
+             n_tokens_title:weekday_is_tuesday +
+             average_token_length:data_channel_is_entertainment + 
+             num_hrefs:data_channel_is_socmed + 
+             num_imgs:is_weekend:data_channel_is_socmed + 
+             global_subjectivity:data_channel_is_socmed + 
+             i_n_unique_tokens_content:data_channel_is_bus + 
+             min_positive_polarity:data_channel_is_entertainment, data=news))
+
+# Selected by subset selection by cp criteria (With outlier)
+i_min_avg_negative_pol
+
+# Selected by subset selection by cp criteria (Without outlier)
+i_title_subjectivity_sentiment_polarity
+
+# Interaction terms for dataset with outlier
+n_tokens_title:weekday_is_tuesday
+average_token_length:data_channel_is_entertainment
+# Interaction terms common in both the dataset
+num_hrefs:data_channel_is_socmed +
+num_imgs:is_weekend:data_channel_is_socmed +
+global_subjectivity:data_channel_is_socmed +
+i_n_unique_tokens_content:data_channel_is_bus +
+min_positive_polarity:data_channel_is_entertainment +
+# Interaction terms for dataset without outlier
+num_self_hrefs:is_weekend +
+max_negative_polarity:is_weekend
+
+
+# Best Model without Outlier 
+summary(lm(shares ~ num_hrefs +
+             num_self_hrefs +
+             num_imgs +
+             self_reference_avg_sharess +
+             LDA_00 +
+             LDA_02 +
+             global_subjectivity +
+             global_rate_positive_words +
+             global_rate_negative_words +
+             min_positive_polarity +
              max_negative_polarity +
-             abs_title_subjectivity + 
-             i_rate_pos_glob_sent_polarity + 
-             global_rate_negative_words + 
-             i_rate_pos_glob_sent_polarity, data=news))
-I(max_negative_polarity * is_weekend)
+             title_sentiment_polarity +
+             abs_title_subjectivity +
+             i_n_unique_tokens_content +
+             i_rate_pos_gsent_polarity +
+             i_kw_max_avg_avg +
+             i_kw_avg_max_max +
+             cat_dow +
+             data_channel + 
+             i_title_sub_sent_polarity, data=news))
+
+# Best Model without Outlier and interaction
+summary(lm(shares ~ num_hrefs +
+             num_self_hrefs +
+             num_imgs +
+             self_reference_avg_sharess +
+             LDA_00 +
+             LDA_02 +
+             global_subjectivity +
+             global_rate_positive_words +
+             global_rate_negative_words +
+             min_positive_polarity +
+             max_negative_polarity +
+             title_sentiment_polarity +
+             abs_title_subjectivity +
+             i_n_unique_tokens_content +
+             i_rate_pos_gsent_polarity +
+             i_kw_max_avg_avg +
+             i_kw_avg_max_max +
+             cat_dow +
+             data_channel + 
+             i_title_sub_sent_polarity + 
+             num_hrefs:data_channel_is_socmed +
+             num_imgs:is_weekend:data_channel_is_socmed +
+             global_subjectivity:data_channel_is_socmed +
+             i_n_unique_tokens_content:data_channel_is_bus +
+             min_positive_polarity:data_channel_is_entertainment + 
+             num_self_hrefs:is_weekend +
+             max_negative_polarity:is_weekend, data=news))
+
+max_negative_polarity:is_weekend
 # Exhuastive Subset selection on the remaning set of variables
+
+# all the interaction
+num_hrefs:data_channel_is_socmed
+num_imgs:is_weekend:data_channel_is_socmed
+num_keywords:data_channel_is_socmed
+global_subjectivity:data_channel_is_socmed
+avg_positive_polarity:data_channel_is_socmed
+i_n_unique_tokens_content:data_channel_is_bus
+average_token_length:data_channel_is_entertainment
+min_positive_polarity:data_channel_is_entertainment
+n_tokens_title:weekday_is_tuesday
+num_self_hrefs:is_weekend
+max_negative_polarity:is_weekend
