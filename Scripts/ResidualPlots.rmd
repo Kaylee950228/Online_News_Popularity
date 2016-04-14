@@ -149,5 +149,39 @@ y <- quantile(news$res, c(0.25, 0.75))
 x <- qnorm(c(0.25, 0.75))
 slope <- diff(y)/diff(x)
 int <- y[1L] - slope * x[1L]
-ggplot(news, aes(sample=res)) + stat_qq() +geom_abline(slope = slope, intercept = int)
+p1 <- ggplot(news, aes(sample=res)) + stat_qq() + geom_abline(slope = slope, intercept = int)  + ylab("Stepwise Regression model residuals (With Outlier)") + theme(axis.title=element_text(size=9,face="bold"))
+
+news_wo_outlier <- cook_outliers_removal(news)
+
+model <- lm(shares ~ num_hrefs +
+             num_self_hrefs +
+             num_imgs +
+             self_reference_avg_sharess +
+             LDA_00 +
+             LDA_02 +
+             global_subjectivity +
+             global_rate_positive_words +
+             global_rate_negative_words +
+             min_positive_polarity +
+             max_negative_polarity +
+             title_sentiment_polarity +
+             abs_title_subjectivity +
+             i_n_unique_tokens_content +
+             i_rate_pos_gsent_polarity +
+             i_kw_max_avg_avg +
+             i_kw_avg_max_max +
+             cat_dow +
+             data_channel + 
+             i_title_sub_sent_polarity, data=news_wo_outlier)
+
+news_wo_outlier$res <- abs(model$residuals)
+news_wo_outlier$pre <- predict(model, data=news)
+
+y <- quantile(news_wo_outlier$res, c(0.25, 0.75))
+x <- qnorm(c(0.25, 0.75))
+slope <- diff(y)/diff(x)
+int <- y[1L] - slope * x[1L]
+
+p2 <- ggplot(news_wo_outlier, aes(sample=res)) + stat_qq() +geom_abline(slope = slope, intercept = int) + ylab("Stepwise Regression model residuals (Without Outlier)") + theme(axis.title=element_text(size=9,face="bold"))
+grid.arrange(p1, p2, ncol = 2, top = "Residual QQ Plots")
 ```
