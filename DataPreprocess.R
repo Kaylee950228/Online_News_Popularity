@@ -140,15 +140,15 @@ normalization <- function(news_train){
   #news_train_norm <- news_train %>% mutate_each_(funs(scale),vars=needed_columns)
   
   # Saving standard deviation of the columns which are normalized
-  sd_values <- Map(sd, news_train[needed_columns])
+  sd_values <- Map(sd, news_train[,needed_columns])
   
   # Saving mean of the columns which are normalized
-  mean_values <- Map(mean, news_train[needed_columns])
+  mean_values <- Map(mean, news_train[,needed_columns])
   
   
-  news_train_norm[,needed_columns] <- (news[,needed_columns] - mean_values) / sd_values
+  news_train[,needed_columns] <- (news_train[,needed_columns] - mean_values) / sd_values
   
-  return(list("sd_values"=sd_values, "mean_values"=mean_values, "news_train"=news_train_norm))
+  return(list("sd_values"=sd_values, "mean_values"=mean_values, "news_train"=news_train))
   
 }
 
