@@ -108,6 +108,7 @@ target_transformation <- function(news) {
   return(list("news"=news, "lambda"=p$lambda))
 }
 
+
 target_inverse <- function(shares, lambda) {
   if (lambda == 0) {
     shares <- exp(shares)
@@ -136,16 +137,39 @@ normalization <- function(news_train){
   needed_columns <- setdiff(column_names,ignored_column_names)
   
   # Normalized Train Data
-  news_train_norm <- news_train %>% mutate_each_(funs(scale),vars=needed_columns)
+  #news_train_norm <- news_train %>% mutate_each_(funs(scale),vars=needed_columns)
   
   # Saving standard deviation of the columns which are normalized
   sd_values <- Map(sd, news_train[needed_columns])
   
-  # Saving eman of the columns which are normalized
+  # Saving mean of the columns which are normalized
   mean_values <- Map(mean, news_train[needed_columns])
+  
+  
+  news_train_norm[,needed_columns] <- (news[,needed_columns] - mean_values) / sd_values
   
   return(list("sd_values"=sd_values, "mean_values"=mean_values, "news_train"=news_train_norm))
   
+}
+
+apply_normalization <- function(news, means, sds) {
+  # All Column names
+  column_names <- names(news_train)
+  
+  # Column names which needs to be ignored due to categorical and target feature
+  
+  ignored_column_names <- c("url", "timedelta", "data_channel_is_lifestyle",
+                            "data_channel_is_entertainment", "data_channel_is_bus",
+                            "data_channel_is_world", "data_channel_is_socmed",
+                            "data_channel_is_tech", "weekday_is_monday", "weekday_is_tuesday",
+                            "weekday_is_wednesday", "weekday_is_thursday", "weekday_is_friday",
+                            "weekday_is_saturday", "weekday_is_sunday", "is_weekend", "shares")
+  
+  needed_columns <- setdiff(column_names,ignored_column_names)
+  
+  news[,needed_columns] <- (news[,needed_columns] - means) / sds
+  
+  return(news)
 }
 
 cat_encoding <- function(news){
@@ -176,7 +200,6 @@ cat_encoding <- function(news){
   }
   
   news$data_channel <- as.factor(news$data_channel)
-  
   news$is_weekend <- as.factor(news$is_weekend)
   
   return(news)
@@ -215,15 +238,3 @@ cook_outliers_removal <- function(news){
   return(news)
   
 }
-
-#setwd("/Users/Darshan/Documents/Online_News_Popularity")
-#setwd("/home/gbakie/neu/stat-sp16/project/data")
-
-#news_train <- read.csv("Train.csv", header = TRUE)
-#news_train <- data_cleaning(news_train)
-#news_train <- correlation_cleaning(news_train)
-#news_train <- target_transformation(news_train)
-#obj <- normalization(news_train)
-#news_train <- obj$news_train
-#news_train <- cat_encoding(news_train)
-
