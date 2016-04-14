@@ -146,7 +146,6 @@ summary(lm(shares ~ data_channel +
              title_sentiment_polarity + 
              i_min_avg_negative_pol +
              n_tokens_title:weekday_is_tuesday +
-             average_token_length:data_channel_is_entertainment + 
              num_hrefs:data_channel_is_socmed + 
              num_imgs:is_weekend:data_channel_is_socmed + 
              global_subjectivity:data_channel_is_socmed + 
@@ -161,7 +160,6 @@ i_title_subjectivity_sentiment_polarity
 
 # Interaction terms for dataset with outlier
 n_tokens_title:weekday_is_tuesday
-average_token_length:data_channel_is_entertainment
 # Interaction terms common in both the dataset
 num_hrefs:data_channel_is_socmed +
 num_imgs:is_weekend:data_channel_is_socmed +
@@ -230,11 +228,9 @@ max_negative_polarity:is_weekend
 # all the interaction
 num_hrefs:data_channel_is_socmed
 num_imgs:is_weekend:data_channel_is_socmed
-num_keywords:data_channel_is_socmed
 global_subjectivity:data_channel_is_socmed
 avg_positive_polarity:data_channel_is_socmed
 i_n_unique_tokens_content:data_channel_is_bus
-average_token_length:data_channel_is_entertainment
 min_positive_polarity:data_channel_is_entertainment
 n_tokens_title:weekday_is_tuesday
 num_self_hrefs:is_weekend

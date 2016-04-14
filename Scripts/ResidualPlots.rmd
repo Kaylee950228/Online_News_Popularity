@@ -70,7 +70,84 @@ p1 <- ggplot(aes(x=pre,y=res) ,data=news)  +  geom_point() + xlab("Predicted Num
 
 p2 <- ggplot(aes(x=pre,y=res) ,data=news_wo_outlier)  +  geom_point() + xlab("Predicted Number of Shares (Without Outliers)") + ylab("abs(Residual)") + stat_binhex(bins = 75)  + geom_smooth(color = "red") + theme(axis.title=element_text(size=9,face="bold"))
 
-grid.arrange(p1, p2, ncol = 2, top = "Residual vs Predicted Target Plots")
+grid.arrange(p1, p2, ncol = 2, top = "Residual vs Predicted value of Shares")
 #qplot(pre, res, data = news, geom="hex",binwidth = c(0.1, 0.1))
 
+```
+
+Residual plot analyses for finalized stepwise regression model to test whether linear
+model is an appropreate model for the given dataset.
+```{r}
+
+#setwd("/home/gbakie/neu/stat-sp16/project/Online_News_Popularity")
+setwd("/Users/Darshan/Documents/Online_News_Popularity")
+
+library(caret)
+library(ggplot2)
+library(grid)
+library(gridExtra)
+source("DataPreprocess.R")
+
+set.seed(464)
+
+setwd("/Users/Darshan/Documents/CS 7280 Stats/Project/Data/")
+#setwd("/home/gbakie/neu/stat-sp16/project/data")
+
+news <- read.csv("Train.csv", header = TRUE)
+
+news <- data_cleaning(news)
+news <- correlation_cleaning(news)
+
+return_obj <- target_transformation(news)
+news <- return_obj$news
+lamda <- return_obj$lambda
+
+obj <- normalization(news)
+news <- obj$news
+
+news <- cat_encoding(news)
+
+url <- news$url
+news$url <- NULL
+
+categorical_var <- c("data_channel_is_lifestyle", 
+                     "data_channel_is_entertainment", "data_channel_is_bus", 
+                     "data_channel_is_world", "data_channel_is_socmed", 
+                     "data_channel_is_tech", "weekday_is_monday", "weekday_is_tuesday", 
+                     "weekday_is_wednesday", "weekday_is_thursday", "weekday_is_friday", 
+                     "weekday_is_saturday", "weekday_is_sunday")
+
+news_with_cat <- subset(news, select = categorical_var)
+news <- subset(news, select = setdiff(names(news),categorical_var))
+
+#news_wo_outlier <- cook_outliers_removal(news)
+
+model <- lm(shares ~ data_channel +
+             cat_dow +
+             i_kw_max_avg_avg +
+             self_reference_avg_sharess +
+             i_kw_avg_max_max +
+             num_hrefs +
+             global_subjectivity +
+             LDA_00 +
+             LDA_01 +
+             LDA_02 +
+             num_self_hrefs +
+             i_n_unique_tokens_content +
+             i_title_sub_sent_polarity +
+             abs_title_subjectivity +
+             n_tokens_title +
+             min_positive_polarity +
+             num_imgs +
+             average_token_length +
+             title_sentiment_polarity + 
+             i_min_avg_negative_pol, data=news)
+
+news$res <- abs(model$residuals)
+news$pre <- predict(model, data=news)
+y <- quantile(news$res, c(0.25, 0.75))
+x <- qnorm(c(0.25, 0.75))
+slope <- diff(y)/diff(x)
+int <- y[1L] - slope * x[1L]
+ggplot(news, aes(sample=res)) + stat_qq() +geom_abline(slope = slope, intercept = int)
 ```
