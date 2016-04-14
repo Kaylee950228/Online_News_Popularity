@@ -39,9 +39,9 @@ categorical_var <- c("data_channel_is_lifestyle",
 
 news_with_cat <- subset(news, select = categorical_var)
 
-news <- subset(news, select = setdiff(names(news),categorical_var))
+#news <- subset(news, select = setdiff(names(news),categorical_var))
 
-news <- cook_outliers_removal(news)
+#news <- cook_outliers_removal(news)
 
 
 ignored_column_names <- c("url", "timedelta", "data_channel_is_lifestyle",
@@ -68,29 +68,50 @@ news$is_weekend = factor(news$is_weekend, levels = 0:1,
 data_channel <- 'data_channel'
 shares <- 'shares'
 
+needed_columns <- c("num_hrefs", "num_imgs", "num_keywords", "global_subjectivity",
+                    "avg_positive_polarity", "i_n_unique_tokens_content",
+                    "average_token_length", "min_positive_polarity")
+plots <- list()
+i <- 1
 for(column in needed_columns){
   print(column)
-  p <- ggplot(news, aes_string(x=column, y=shares, color=as.name(data_channel))) + stat_smooth(method=lm)
-  plot(p)
+  p <- ggplot(news, aes_string(x=column, y=shares, color=as.name(data_channel))) + stat_smooth(method=lm, se = FALSE) + theme(axis.title=element_text(size=10,face="bold"))
+  plots[[i]] <- p
+  i <- i + 1
 }
 
+needed_columns <- c("num_imgs", "num_self_hrefs", 
+                    "max_negative_polarity")
 cat_dow<-'cat_dow'
-shares <- 'shares'
-
-for(column in needed_columns){
-  print(column)
-  p <- ggplot(news, aes_string(x=column, y=shares, color=as.name(cat_dow))) + stat_smooth(method=lm)
-  plot(p)
-}
-
 is_weekend<-'is_weekend'
-shares <- 'shares'
-
 for(column in needed_columns){
   print(column)
-  p <- ggplot(news, aes_string(x=column, y=shares, color=as.name(is_weekend))) + stat_smooth(method=lm)
-  plot(p)
+  p <- ggplot(news, aes_string(x=column, y=shares, color=as.name(is_weekend))) + stat_smooth(method=lm, se = FALSE) + theme(axis.title=element_text(size=10,face="bold"))
+  plots[[i]] <- p
+  i <- i + 1
 }
+
+p <- ggplot(news, aes_string(x="n_tokens_title", y=shares, color=as.name(cat_dow))) + stat_smooth(method=lm, se = FALSE) + theme(axis.title=element_text(size=10,face="bold"))
+  plots[[i]] <- p
+  
+grid.arrange(p1, p2, ncol = 2, top = "Residual vs Predicted Target Plots")
+cat_dow<-'cat_dow'
+# shares <- 'shares'
+# 
+# for(column in needed_columns){
+#   print(column)
+#   p <- ggplot(news, aes_string(x=column, y=shares, color=as.name(cat_dow))) + stat_smooth(method=lm)
+#   plot(p)
+# }
+# 
+# is_weekend<-'is_weekend'
+# shares <- 'shares'
+# 
+# for(column in needed_columns){
+#   print(column)
+#   p <- ggplot(news, aes_string(x=column, y=shares, color=as.name(is_weekend))) + stat_smooth(method=lm)
+#   plot(p)
+# }
 
 
 # data_channel<- 'data_channel'
