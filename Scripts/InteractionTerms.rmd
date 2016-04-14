@@ -68,9 +68,9 @@ news$is_weekend = factor(news$is_weekend, levels = 0:1,
 data_channel <- 'data_channel'
 shares <- 'shares'
 
-needed_columns <- c("num_hrefs", "num_imgs", "num_keywords", "global_subjectivity",
+needed_columns <- c("num_hrefs", "num_imgs", "global_subjectivity",
                     "avg_positive_polarity", "i_n_unique_tokens_content",
-                    "average_token_length", "min_positive_polarity")
+                    "min_positive_polarity")
 plots <- list()
 i <- 1
 for(column in needed_columns){
