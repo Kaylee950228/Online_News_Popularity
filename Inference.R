@@ -7,6 +7,7 @@ source("DataPreprocess.R")
 
 setwd("/home/gbakie/neu/stat-sp16/project/data")
 
+# Load and preprocess train and test
 news_train <- read.csv("Train.csv", header = TRUE)
 news_test <- read.csv("Test.csv", header = TRUE)
 

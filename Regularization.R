@@ -6,26 +6,24 @@ source("DataPreprocess.R")
 
 set.seed(464)
 
+# run grid search with cross validation to select best values for lambda and alpha in elastic net
 select_model <- function(news, t_lambda) {
-  
   K = 10
-  
   # alpha = 0 -> Ridge; alpha = 1 -> Lasso
   alphas = c(0,1)
-  #alphas = c(1)
   lambdas = c(1e-05, 1e-04, 1e-03, 1e-02, 0.1, 1.,10.)
   
   folds <- createFolds(news$shares, k = K, list=TRUE, returnTrain=TRUE)
-  
+  # for each combination of parameters
   for (alpha in alphas) {
     for (lambda in lambdas) {
       rmses <- c()
       R2s <- c()
       
+      # for each fold
       for (i in 1:K) {
         news_train <- news[folds[[i]],]
         news_val <- news[-folds[[i]],]
-        #news_train <- outliers_removal(news_train)
                 
         X_train <- data.matrix(subset(news_train,select=-shares))
         y_train <- data.matrix(news_train$shares)
@@ -35,16 +33,11 @@ select_model <- function(news, t_lambda) {
         model <- glmnet(X_train, y_train, family="gaussian", alpha=alpha, standardize=TRUE, 
                         lambda=lambda, nlambda=1)
         
-        #png(file="mygraphic.png",width=1600,height=1200,res=100)
-        #plot(model, label=TRUE, asp=4.)
-        #dev.off()
-        #break
-        
+      
         pred_train <- predict(model, newx=X_train, s=lambda)
-        #pred_train <- target_inverse(pred_train, t_lambda)
-        #shares_train <- target_inverse(y_train, t_lambda)
         shares_train <- y_train
         
+        # calculate R^2 in the fitted data
         ssto <- sum((shares_train - mean(shares_train))**2)
         sse <- sum((pred_train - shares_train)**2)
         R2 <- 1 - (sse/ssto)
@@ -52,9 +45,6 @@ select_model <- function(news, t_lambda) {
         R2s <- append(R2s, R2)
         
         pred <- predict(model, newx=X_val, s=lambda)
-        #pred <- target_inverse(pred, t_lambda)
-        
-        #shares_val <- target_inverse(y_val, t_lambda)
         shares_val <- y_val
       
         sse <- sum((pred - shares_val)**2)
@@ -93,8 +83,6 @@ obj <- target_transformation(news)
 t_lambda <- obj$lambda
 news <- obj$news
 
-#obj <- normalization(news)
-#news <- obj$news
 news <- cat_encoding(news)
 
 url <- news$url
@@ -113,9 +101,3 @@ news <- subset(news, select = setdiff(names(news),categorical_var))
 
 select_model(news, t_lambda)
 
- 
-X_train <- data.matrix(subset(news,select=-shares))
-y_train <- data.matrix(news$shares)
- 
-model <- glmnet(X_train, y_train, family="gaussian", alpha=1., standardize=TRUE, 
-                 lambda=0.001, nlambda=1)
