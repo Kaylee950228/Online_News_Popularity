@@ -1,9 +1,12 @@
 library(dplyr)
 library(car)
 
+# This function cleans the train dataset
 data_cleaning <- function(news){
   
+  # non-predictor
   news$timedelta <- NULL
+  
   # Removing instances which don't have any text content in it.
   news <- filter(news, n_tokens_content != 0)
   
@@ -11,8 +14,10 @@ data_cleaning <- function(news){
   news$kw_min_min <- NULL # More than 50% instances contain -1 value
   news <- filter(news, n_unique_tokens <= 1) # Outlier value greater than 1
   
-  news <- filter(news, kw_min_avg >= 0, kw_avg_min>=0) # Outlier value less than 1
+  news <- filter(news, kw_min_avg >= 0, kw_avg_min>=0) 
+  # Outlier value less than 1
 
+  # Log transformation becuase there are high number of outliers
   news$LDA_00 <- log(news$LDA_00 + 1)
   news$LDA_01 <- log(news$LDA_01 + 1)
   news$LDA_02 <- log(news$LDA_02 + 1)
@@ -20,8 +25,6 @@ data_cleaning <- function(news){
   news$LDA_04 <- log(news$LDA_04 + 1)
   
   news$self_reference_avg_sharess <- log(news$self_reference_avg_sharess + 1)
-  #news$self_reference_min_shares <- log(news$self_reference_min_shares + 1)
-  #news$self_reference_max_shares <- log(news$self_reference_max_shares + 1)
   
   news$kw_max_min <- log(news$kw_max_min + 1)
   news$kw_avg_min <- log(news$kw_avg_min + 1)
@@ -38,9 +41,14 @@ data_cleaning <- function(news){
   
 }
 
+# This function handle the multi-collinearity in the train dataset.
 correlation_cleaning <- function(news){
   
+  
   news$rate_negative_words <- NULL
+  # n_non_stop_unique_tokens and n_unique_tokens have correlation of 0.887
+  #  n_non_stop_unique_tokens is removed from the analysis as both the predictors 
+  # are semantically similar
   news$n_non_stop_unique_tokens <- NULL
   
   # self_reference_min_shares and self_reference_max_shares has high corelation with 
@@ -56,13 +64,12 @@ correlation_cleaning <- function(news){
   news$i_title_sub_sent_polarity <- (news$title_subjectivity + 
                                        news$abs_title_sentiment_polarity) / 2.0
   # 0.71 colinearity between title_subjectivity and abs_title_sentiment_polarity
-  
   news$title_subjectivity <- NULL
   news$abs_title_sentiment_polarity <- NULL
   
   # 0.719 colinearity between min_negative_polarity and avg_negative_polarity
-  news$i_min_avg_negative_pol <- (news$min_negative_polarity + news$avg_negative_polarity) / 2.0
-  
+  news$i_min_avg_negative_pol <- (news$min_negative_polarity + 
+                                    news$avg_negative_polarity) / 2.0
   news$min_negative_polarity <- NULL
   news$avg_negative_polarity <- NULL
   
@@ -72,13 +79,13 @@ correlation_cleaning <- function(news){
   news$rate_positive_words <- NULL
   news$global_sentiment_polarity <- NULL
   
+  #kw_max_min and kw_avg_min have correlation of 0.901
   news$i_kw_max_avg_min <- (news$kw_max_min + news$kw_avg_min) / 2.0
+  #kw_max_avg and kw_avg_avg have correlation of 0.899
   news$i_kw_max_avg_avg <- (news$kw_max_avg + news$kw_avg_avg) / 2.0
   
   # High collinearity after applying log transformation on kw_min_avg and kw_min_max
   # Log transformation has improved the r-squared value
-  #news$i_kw_min_avg_max <- (news$kw_min_avg + news$kw_min_max) / 2.0
-  #news$kw_min_avg<- NULL
   news$kw_min_max<- NULL
   
   # High collinearity after applying log transformation on kw_avg_max and kw_max_max
@@ -92,6 +99,10 @@ correlation_cleaning <- function(news){
   news$kw_max_avg <- NULL
   news$kw_avg_avg <- NULL
   
+  # After trying different interactions between the predictors, 
+  # correlation did not decrease significantly, so 
+  # self_reference_min_shares and self_reference_max_shares 
+  # predictors are both removed.
   news$self_reference_min_shares <- NULL
   news$self_reference_max_shares <- NULL
   
@@ -99,6 +110,7 @@ correlation_cleaning <- function(news){
   
 }
 
+# This function applies the Box-Cox transformation on responce variable
 target_transformation <- function(news) {
   
   p <- powerTransform(news$shares)
@@ -108,7 +120,8 @@ target_transformation <- function(news) {
   return(list("news"=news, "lambda"=p$lambda))
 }
 
-
+# This function returns the actual value of the responce variable
+# from the Box-Cox transformation
 target_inverse <- function(shares, lambda) {
   if (lambda == 0) {
     shares <- exp(shares)
@@ -120,6 +133,7 @@ target_inverse <- function(shares, lambda) {
   return(shares)
 }
 
+# This funciton normalize the train dataset continuous variables
 normalization <- function(news_train){
   
   # All Column names
@@ -145,13 +159,13 @@ normalization <- function(news_train){
   # Saving mean of the columns which are normalized
   mean_values <- Map(mean, news_train[,needed_columns])
   
-  
   news_train[,needed_columns] <- (news_train[,needed_columns] - mean_values) / sd_values
   
   return(list("sd_values"=sd_values, "mean_values"=mean_values, "news_train"=news_train))
   
 }
 
+# This funciton normalize the test datset continuous variables
 apply_normalization <- function(news, means, sds) {
   # All Column names
   column_names <- names(news_train)
@@ -172,6 +186,8 @@ apply_normalization <- function(news, means, sds) {
   return(news)
 }
 
+# This function creates the factor/single categorical variable by combining
+# multiple/one hot encoded variables
 cat_encoding <- function(news){
   
   dow_cols = c("weekday_is_monday", "weekday_is_tuesday", "weekday_is_wednesday",
@@ -200,6 +216,7 @@ cat_encoding <- function(news){
   }
   
   news$data_channel <- as.factor(news$data_channel)
+  
   news$is_weekend <- as.factor(news$is_weekend)
   
   return(news)
@@ -221,6 +238,8 @@ outliers_removal <- function(news) {
   return(sorted_news)
 }
 
+# This function removes the outlier from the dataset based upon the 
+# cook's distance
 cook_outliers_removal <- function(news){
   
   cutoff <- 4/nrow(news)
@@ -238,3 +257,4 @@ cook_outliers_removal <- function(news){
   return(news)
   
 }
+
