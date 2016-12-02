@@ -40,19 +40,29 @@ news <- subset(news, select = setdiff(names(news),categorical_var))
 # Weight Regression Code started
 
 ncvTest(lm(shares ~ .,data=news))
-#m.unweighted <- lm(shares ~ ., data=news)
+m.unweighted <- lm(shares ~ ., data=news)
 #news$res <- abs(m.unweighted$residuals)
 #news$predict<-predict(m.unweighted, data=news)
 #ggplot(data = news, aes(x=predict,y=res)) + geom_point() + stat_smooth() 
 #+ xlab("Shares Prediction") + ylab("abs(residual)")
 #news$res <- NULL
 #news$predict <- NULL
-#w <- predict(lm(abs(m.unweighted$res) ~ predict(m.unweighted, data=news)), data=news)
+w <- predict(lm(abs(m.unweighted$res) ~ predict(m.unweighted, data=news)), data=news)
 #w <- (w - min(w))/(max(w) - min(w))
 ## Code Ends
-news$shares <- news$shares * w
+#news$shares <- news$shares * w
 K <- 10
-
+model <- lm(formula = shares ~ ., data = news, weights = 1/(w^2))
+news$pred <- predict(model, data=news)
+news$res <- model$residuals
+y <- quantile(news$res, c(0.25, 0.75))
+x <- qnorm(c(0.25, 0.75))
+slope <- diff(y)/diff(x)
+int <- y[1L] - slope * x[1L]
+p2 <- ggplot(news, aes(sample=res)) + stat_qq() + 
+  geom_abline(slope = slope, intercept = int) + 
+  ylab("Weighted Least Square (With Outlier)") + 
+  theme(axis.title=element_text(size=9,face="bold"))
 folds <- createFolds(news$shares, k = K, list=TRUE, returnTrain=TRUE)
 
 models <- list()
@@ -62,18 +72,18 @@ for (i in 1:K) {
   
   news_train <- news[folds[[i]],]
   news_val <- news[-folds[[i]],]
-  w <- w[folds[[i]]]
+  #w <- w[folds[[i]]]
   
   m.unweighted <- lm(shares ~ ., data=news_train)
   w <- predict(lm(abs(m.unweighted$res) ~ predict(m.unweighted, data=news_train)), data=news_train)
   #w <- (w - min(w))/(max(w) - min(w))
-  news_train$shares <- news_train$shares * w
+  #news_train$shares <- news_train$shares * w
   
   null=lm(shares~1, data=news_train)
   full=lm(shares~., data=news_train)
   
-  #model <- lm(formula = shares ~ ., data = news_train, weights = 1/(w^2))
-  model <- step(null, scope=list(lower=null, upper=full), direction="forward", trace=0)
+  model <- lm(formula = shares ~ ., data = news_train, weights = 1/(w^2))
+  #model <- step(null, scope=list(lower=null, upper=full), direction="forward", trace=0)
   
   pred <- predict(model, news_val)
   

@@ -37,7 +37,7 @@ categorical_var <- c("data_channel_is_lifestyle",
 
 news_with_cat <- subset(news, select = categorical_var)
 
-#news <- subset(news, select = setdiff(names(news),categorical_var))
+news <- subset(news, select = setdiff(names(news),categorical_var))
 
 #news <- cook_outliers_removal(news)
 
@@ -47,6 +47,7 @@ folds <- createFolds(news$shares, k = K, list=TRUE, returnTrain=TRUE)
 
 models <- list()
 rmses <- c()
+actual_scale_rmses <- c()
 R2s <- c()
 
 for (i in 1:K) {
@@ -66,29 +67,25 @@ for (i in 1:K) {
                 LDA_02 +
                 num_self_hrefs +
                 i_n_unique_tokens_content +
-                i_title_subjectivity_sentiment_polarity +
+                i_title_sub_sent_polarity +
                 abs_title_subjectivity +
                 n_tokens_title +
                 min_positive_polarity +
                 num_imgs +
                 average_token_length +
                 title_sentiment_polarity + 
-                n_tokens_title:weekday_is_tuesday + 
-                average_token_length:data_channel_is_entertainment + 
-                num_hrefs:data_channel_is_socmed + 
-                num_imgs:is_weekend:data_channel_is_socmed + 
-                global_subjectivity:data_channel_is_socmed + 
-                i_n_unique_tokens_content:data_channel_is_bus +
-                min_positive_polarity:data_channel_is_entertainment, data=news_train)
+                i_min_avg_negative_pol, data=news_train)
+  
   
   pred <- predict(model, news_val)
   
-  #pred <- target_inverse(pred, lamda)
-  #shares_val <- target_inverse(news_val$shares, lamda)
-  #mse <- sum((pred - shares_val)**2) / nrow(news_val)
-  
   mse <- sum((pred - news_val$shares)**2) / nrow(news_val)
   rmses <- append(rmses, sqrt(mse))
+  
+  pred <- target_inverse(pred, lamda)
+  shares_val <- target_inverse(news_val$shares, lamda)
+  actual_scale_mse <- sum((pred - shares_val)**2) / nrow(news_val)
+  actual_scale_rmses <- append(actual_scale_rmses, actual_scale_mse)
   
   R2s <- append(R2s, summary(model)$adj.r.squared)
   
@@ -96,6 +93,32 @@ for (i in 1:K) {
   
 }
 rmses
+actual_scale_rmses
 R2s
 mean(rmses)
+sd(rmses)
+mean(actual_scale_rmses)
+sd(actual_scale_rmses)
 mean(R2s)
+
+model <- lm(shares ~ data_channel +
+     cat_dow +
+     i_kw_max_avg_avg +
+     self_reference_avg_sharess +
+     i_kw_avg_max_max +
+     num_hrefs +
+     global_subjectivity +
+     LDA_00 +
+     LDA_01 +
+     LDA_02 +
+     num_self_hrefs +
+     i_n_unique_tokens_content +
+     i_title_sub_sent_polarity +
+     abs_title_subjectivity +
+     n_tokens_title +
+     min_positive_polarity +
+     num_imgs +
+     average_token_length +
+     title_sentiment_polarity + 
+     i_min_avg_negative_pol, data=news)
+qqnorm(model$residuals) + qqline(model$residuals)

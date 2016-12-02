@@ -1,5 +1,5 @@
-setwd("/home/gbakie/neu/stat-sp16/project/Online_News_Popularity")
-#setwd("/Users/Darshan/Documents/Online_News_Popularity")
+#setwd("/home/gbakie/neu/stat-sp16/project/Online_News_Popularity")
+setwd("/Users/Darshan/Documents/Online_News_Popularity")
 
 library(caret)
 library(ggplot2)
@@ -25,19 +25,30 @@ bootstrap <- function(formula, data) {
   return(models)
 }
 
-# features from stepwise selection
-predictors <- c("data_channel", "cat_dow", "i_kw_max_avg_avg",
-                "self_reference_avg_sharess", "i_kw_avg_max_max",
-                "num_hrefs", "global_subjectivity", "LDA_00", 
-                "LDA_01", "LDA_02", "num_self_hrefs",
-                "i_n_unique_tokens_content", "i_title_sub_sent_polarity",
-                "abs_title_subjectivity", "n_tokens_title", "min_positive_polarity",
-                "num_imgs", "average_token_length", "title_sentiment_polarity",
-                "i_min_avg_negative_pol")
+
+# stepwise selection (with outliers)
+# predictors <- c("data_channel", "cat_dow", "i_kw_max_avg_avg",
+#                 "self_reference_avg_sharess", "i_kw_avg_max_max",
+#                 "num_hrefs", "global_subjectivity", "LDA_00", 
+#                 "LDA_01", "LDA_02", "num_self_hrefs",
+#                 "i_n_unique_tokens_content", "i_title_sub_sent_polarity",
+#                 "abs_title_subjectivity", "n_tokens_title", "min_positive_polarity",
+#                 "num_imgs", "average_token_length", "title_sentiment_polarity",
+#                 "i_min_avg_negative_pol")
+
+# # stepwise selection (without outliers)
+predictors <- c("num_hrefs", "num_self_hrefs", "num_imgs",
+  "self_reference_avg_sharess", "LDA_00", "LDA_02", "global_subjectivity",
+  "global_rate_positive_words", "global_rate_negative_words", "min_positive_polarity",
+  "max_negative_polarity", "title_sentiment_polarity", "abs_title_subjectivity",
+  "i_n_unique_tokens_content", "i_rate_pos_gsent_polarity", "i_kw_max_avg_avg", 
+  "i_kw_avg_max_max", "cat_dow", "data_channel", "i_title_sub_sent_polarity")
+
 
 formula <- as.formula(paste("shares~", paste(predictors,collapse="+")))
 
-setwd("/home/gbakie/neu/stat-sp16/project/data")
+#setwd("/home/gbakie/neu/stat-sp16/project/data")
+setwd("/Users/Darshan/Documents/CS 7280 Stats/Project/Data/")
 
 news <- read.csv("Train.csv", header = TRUE)
 
@@ -55,6 +66,8 @@ news <- cat_encoding(news)
 
 url <- news$url
 news$url <- NULL
+
+news <- cook_outliers_removal(news)
 
 # number of coefficients in the model
 N_COEF <- 31
@@ -113,3 +126,16 @@ for (i in 1:length(models)) {
 
 sse <- sum((rowMeans(pred) - news$shares)**2)
 rmse <- sqrt(sse / nrow(news))
+
+news$res <- (news$shares - rowMeans(pred))
+news$pred <- rowMeans(pred)
+
+y <- quantile(news$res, c(0.25, 0.75))
+x <- qnorm(c(0.25, 0.75))
+slope <- diff(y)/diff(x)
+int <- y[1L] - slope * x[1L]
+
+p3<- ggplot(news, aes(sample=res)) + 
+  stat_qq() +geom_abline(slope = slope, intercept = int) + 
+  ylab("Bootstrap (Without Outliers)") + 
+  theme(axis.title=element_text(size=9,face="bold"))

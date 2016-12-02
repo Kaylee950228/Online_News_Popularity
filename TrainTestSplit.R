@@ -1,5 +1,5 @@
-#setwd("/Users/Darshan/Documents/Online_News_Popularity")
-setwd("/home/gbakie/neu/stat-sp16/project/data")
+setwd("/Users/Darshan/Documents/Online_News_Popularity")
+#setwd("/home/gbakie/neu/stat-sp16/project/data")
 
 news <- read.csv("OnlineNewsPopularity.csv", header = TRUE)
 

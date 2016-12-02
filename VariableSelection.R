@@ -9,14 +9,16 @@ library(plyr)
 news_train <- read.csv("/Users/Darshan/Documents/CS 7280 Stats/Project/Data/Train.csv", header = TRUE)
 news_train <- data_cleaning(news_train)
 news_train <- correlation_cleaning(news_train)
-news_train <- target_transformation(news_train)
+return_obj <- target_transformation(news_train)
+news_train <- return_obj$news
+lamda <- return_obj$lambda
 obj <- normalization(news_train)
 news_train <- obj$news_train
 news_train <- cat_encoding(news_train)
 
-
 train_url <- news_train$url
 news_train$url <- NULL
+
 #news_train$cat_dow <- NULL
 categorical_var <- c("data_channel_is_lifestyle", 
                      "data_channel_is_entertainment", "data_channel_is_bus", 
@@ -25,7 +27,7 @@ categorical_var <- c("data_channel_is_lifestyle",
                      "weekday_is_wednesday", "weekday_is_thursday", "weekday_is_friday", 
                      "weekday_is_saturday", "weekday_is_sunday")
 
-#news_train <- subset(news_train, select = setdiff(names(news_train),categorical_var))
+news_train <- subset(news_train, select = setdiff(names(news_train),categorical_var))
 
 #leaps <- regsubsets(shares_transformed ~ 1, data=news_train)
 
@@ -97,7 +99,7 @@ summary(lm(shares ~ data_channel + cat_dow + LDA_00 * data_channel_is_socmed + L
              n_tokens_title + kw_max_max + title_sentiment_polarity + 
              min_negative_polarity + title_subjectivity + kw_avg_max + 
              global_rate_negative_words + global_sentiment_polarity + 
-             self_reference_min_shares + n_unique_tokens + n_tokens_content + 
+            n_unique_tokens + n_tokens_content + 
              rate_positive_words + global_rate_positive_words, data=news_train))
 
 summary(lm(shares ~ i_kw_max_avg_avg + 
@@ -123,7 +125,6 @@ summary(lm(shares ~ i_kw_max_avg_avg +
              kw_avg_max * data_channel_is_socmed * is_weekend +
              global_rate_negative_words +
              global_sentiment_polarity +
-             self_reference_min_shares +
              n_unique_tokens +
              n_tokens_content * data_channel_is_bus +
              rate_positive_words +
@@ -132,8 +133,8 @@ summary(lm(shares ~ i_kw_max_avg_avg +
 
 
 i_kw_max_avg_avg + 
-num_hrefs * data_channel_is_socmed +
-self_reference_avg_sharess * weekday_is_sunday +
+I(num_hrefs * data_channel_is_socmed) +
+I(self_reference_avg_sharess * weekday_is_sunday) +
 kw_min_avg * is_weekend +
 num_keywords * data_channel_is_socmed * is_weekend +
 global_subjectivity * data_channel_is_socmed +

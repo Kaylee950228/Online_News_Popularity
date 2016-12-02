@@ -1,4 +1,10 @@
-setwd("/home/gbakie/neu/stat-sp16/project/Online_News_Popularity")
+setwd("/Users/Darshan/Documents/CS 7280 Stats/Project/Data/")
+#setwd("/home/gbakie/neu/stat-sp16/project/data")
+
+news <- read.csv("Train.csv", header = TRUE)
+
+#setwd("/home/gbakie/neu/stat-sp16/project/Online_News_Popularity")
+setwd("/Users/Darshan/Documents/Online_News_Popularity")
 
 library(caret)
 library(glmnet)
@@ -70,14 +76,12 @@ select_model <- function(news, t_lambda) {
   # alpha = 0.000000, lambda = 0.001000, avg rmse = 0.164184, sd rmse = 0.005661, avg R-2 = 0.120518
 }
 
-
 #setwd("/Users/Darshan/Documents/Online_News_Popularity")
 setwd("/home/gbakie/neu/stat-sp16/project/data")
 
 news <- read.csv("Train.csv", header = TRUE)
 
 news <- data_cleaning(news)
-
 news <- correlation_cleaning(news)
 obj <- target_transformation(news)
 t_lambda <- obj$lambda
@@ -100,4 +104,3 @@ categorical_var <- c("data_channel_is_lifestyle",
 news <- subset(news, select = setdiff(names(news),categorical_var))
 
 select_model(news, t_lambda)
-

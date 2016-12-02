@@ -1,7 +1,7 @@
 library(dplyr)
 
 # Load Training Data
-news_train <- read.csv("/Users/Darshan/Documents/CS 7280 Stats/Project/Data/Cleaned_Train.csv", header = TRUE)
+news_train <- read.csv("/Users/Darshan/Documents/CS 7280 Stats/Project/Data/Cleaned_Cor_Train.csv", header = TRUE)
 
 # All Column names
 column_names <- names(news_train)

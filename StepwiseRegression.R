@@ -14,10 +14,6 @@ news <- read.csv("Train.csv", header = TRUE)
 news <- data_cleaning(news)
 news <- correlation_cleaning(news)
 
-return_obj <- target_transformation(news)
-news <- return_obj$news
-lamda <- return_obj$lambda
-
 obj <- normalization(news)
 news <- obj$news
 
@@ -38,6 +34,10 @@ news_with_cat <- subset(news, select = categorical_var)
 news <- subset(news, select = setdiff(names(news),categorical_var))
 
 news <- cook_outliers_removal(news)
+
+return_obj <- target_transformation(news)
+news <- return_obj$news
+lamda <- return_obj$lambda
 
 K <- 10
 

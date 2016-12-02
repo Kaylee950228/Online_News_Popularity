@@ -25,6 +25,8 @@ data_cleaning <- function(news){
   news$LDA_04 <- log(news$LDA_04 + 1)
   
   news$self_reference_avg_sharess <- log(news$self_reference_avg_sharess + 1)
+  news$self_reference_min_shares <- log(news$self_reference_min_shares + 1)
+  news$self_reference_max_shares <- log(news$self_reference_max_shares + 1)
   
   news$kw_max_min <- log(news$kw_max_min + 1)
   news$kw_avg_min <- log(news$kw_avg_min + 1)
@@ -133,7 +135,7 @@ target_inverse <- function(shares, lambda) {
   return(shares)
 }
 
-# This funciton normalize the train dataset continuous variables
+# This funciton normalize continuous variables of the train dataset 
 normalization <- function(news_train){
   
   # All Column names
@@ -165,7 +167,7 @@ normalization <- function(news_train){
   
 }
 
-# This funciton normalize the test datset continuous variables
+# This funciton normalize continuous variables of the test datset 
 apply_normalization <- function(news, means, sds) {
   # All Column names
   column_names <- names(news_train)
