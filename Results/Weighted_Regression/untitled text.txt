@@ -1,0 +1,7 @@
+With outliers
+
+rmse
+[1] 14133.74
+
+
+

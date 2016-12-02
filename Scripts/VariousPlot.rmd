@@ -176,13 +176,22 @@ news_wo_outlier_lamda <- return_obj$lambda
 
 par(mfrow=c(1,4))
 
-p1<-boxplot(news$shares,  ylab="Number of Shares (With Outliers)", col = "orange", col.lab="red", pch=18)
+# p1<-boxplot(news$shares,  ylab="Number of Shares (With Outliers)", col = "orange", col.lab="red", pch=18)
 
-p2<-boxplot(news_wo_outlier$shares,  ylab="Number of Shares (Without Outliers)", col = "orange", col.lab="red", pch=18)
 
-p3<-boxplot(news_transformed$shares,  ylab="Transformed number of Shares (With Outliers)", col = "green", col.lab="blue", pch=18)
+p1 <- qplot(y=news$shares, x= 0, geom = "boxplot")  + ylab("Number of shares (With Outlier)") + theme(axis.title=element_text(size=11, face="bold", colour = "blue"))
 
-p4<-boxplot(news_wo_outlier_transformed$shares,  ylab="Transformed number of Shares (Without Outliers)", col = "green", col.lab="blue", pch=18)
+# p2<-boxplot(news_wo_outlier$shares,  ylab="Number of Shares (Without Outliers)", col = "orange", col.lab="red", pch=18)
 
-#grid.arrange(p1, p2, ncol = 2, top="Target Varible Boxplot")
+p2 <- qplot(y=news_wo_outlier$shares, x= 0, geom = "boxplot")  + ylab("Number of shares (Without Outlier)") + theme(axis.title=element_text(size=11, face="bold", colour = "blue"))
+
+# p3<-boxplot(news_transformed$shares,  ylab="Transformed number of Shares (With Outliers)", col = "green", col.lab="blue", pch=18)
+
+p3 <- qplot(y=news_transformed$shares, x= 0, geom = "boxplot")  + ylab("Transformed Number of shares (With Outlier)") + theme(axis.title=element_text(size=11, face="bold", colour = "blue"))
+
+# p4<-boxplot(news_wo_outlier_transformed$shares,  ylab="Transformed number of Shares (Without Outliers)", col = "green", col.lab="blue", pch=18)
+
+p4 <- qplot(y=news_wo_outlier_transformed$shares, x= 0, geom = "boxplot")  + ylab("Transformed Number of shares (Without Outlier)") + theme(axis.title=element_text(size=11, face="bold", colour = "blue"))
+
+grid.arrange(p1, p2, p3, p4, ncol = 4, top="Response Variable Boxplots")
 ```

@@ -1,0 +1,32 @@
+* Not selected in all models*
+i_rate_pos_glob_sent_polarity +
+global_rate_negative_words +
+global_rate_positive_words +
+num_keywords +
+num_videos +
+average_token_length +
+avg_positive_polarity +
+i_min_avg_negative_pol +
+LDA_01 +
+LDA_03 +
+
+* Selected in all models*
+
+i_title_subjectivity_sentiment_polarity +
+data_channel +
+i_kw_max_avg_avg +
+cat_dow +
+self_reference_avg_sharess +
+num_hrefs +
+i_kw_avg_max_max +
+LDA_00 +
+num_self_hrefs +
+i_n_unique_tokens_content +
+global_subjectivity +
+LDA_02 +
+min_positive_polarity +
+num_imgs +
+LDA_04 +
+title_sentiment_polarity +
+max_negative_polarity +
+abs_title_subjectivity +

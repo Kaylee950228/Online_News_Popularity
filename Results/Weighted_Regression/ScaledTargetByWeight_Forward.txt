@@ -1,0 +1,49 @@
+w <- (w - min(w))/(max(w) - min(w))
+news$shares <- news$shares * w
+
+                                        X1    X2    X3    X4    X5    X6    X7    X8    X9   X10   X11
+1                              (Intercept)  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+2                            data_channel1  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+3                            data_channel2  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+4                            data_channel3  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+5                            data_channel4  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+6                            data_channel5  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+7                            data_channel6  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+8                         i_kw_max_avg_avg  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+9               self_reference_avg_sharess  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+10                               num_hrefs  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+11                          num_self_hrefs  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+12                        i_kw_avg_max_max  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+13                     global_subjectivity  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+14               i_n_unique_tokens_content  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE
+15                                  LDA_02  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+16                          n_tokens_title  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+17 i_title_subjectivity_sentiment_polarity  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+18                                cat_dow2  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+19                                cat_dow3  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+20                                cat_dow4  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+21                                cat_dow5  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+22                                cat_dow6  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+23                                cat_dow7  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+24                  abs_title_subjectivity  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+25                                  LDA_01 FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE FALSE  TRUE
+26                                  LDA_04 FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE FALSE  TRUE
+27                              kw_min_avg  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+28                              num_videos  TRUE  TRUE  TRUE FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE
+29           i_rate_pos_glob_sent_polarity FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE  TRUE
+30                   max_negative_polarity FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE  TRUE
+31                  i_min_avg_negative_pol  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE
+32                                  LDA_03  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE FALSE  TRUE FALSE
+33                                  LDA_00  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE FALSE  TRUE FALSE
+34              global_rate_positive_words FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE
+35                title_sentiment_polarity FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE
+36                   min_positive_polarity FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE FALSE
+37                                num_imgs FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE
+> rmses
+ [1]  3949.541  4861.636  4085.825  5503.245  5990.441  4662.727  4540.981  8272.281 10763.005  8025.391
+> R2s
+ [1] 0.03068240 0.03047076 0.03047948 0.02995161 0.03006657 0.02940256 0.03058470 0.03407440 0.03637267 0.03350118
+> mean(rmses)
+[1] 6065.507
+> mean(R2s)
+[1] 0.03155863

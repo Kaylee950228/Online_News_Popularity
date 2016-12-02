@@ -1,0 +1,45 @@
+                                        X1    X2   X3    X4    X5    X6    X7   X8    X9  X10  X11
+1                              (Intercept)  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+2                                num_hrefs  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+3                           num_self_hrefs  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+4                                 num_imgs  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+5                               num_videos  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+6                     average_token_length  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+7                             num_keywords FALSE TRUE FALSE FALSE FALSE FALSE TRUE FALSE TRUE TRUE
+8               self_reference_avg_sharess  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+9                                   LDA_00  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+10                                  LDA_01  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+11                                  LDA_02  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+12                                  LDA_03  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+13                     global_subjectivity  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+14              global_rate_positive_words  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+15              global_rate_negative_words  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+16                   min_positive_polarity  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+17                   max_negative_polarity  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+18                title_sentiment_polarity  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+19                  abs_title_subjectivity  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+20               i_n_unique_tokens_content  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+21 i_title_subjectivity_sentiment_polarity FALSE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+22           i_rate_pos_glob_sent_polarity  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+23                        i_kw_max_avg_avg  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+24                        i_kw_avg_max_max  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+25                                cat_dow2  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+26                                cat_dow3  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+27                                cat_dow4  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+28                                cat_dow5  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+29                                cat_dow6  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+30                                cat_dow7  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+31                           data_channel1  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+32                           data_channel2  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+33                           data_channel3  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+34                           data_channel4  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+35                           data_channel5  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+36                           data_channel6  TRUE TRUE  TRUE  TRUE  TRUE  TRUE TRUE  TRUE TRUE TRUE
+> rmses
+ [1] 0.1333376 0.1338201 0.1328967 0.1310811 0.1329132 0.1353757 0.1331142 0.1350776 0.1340226 0.1339599
+> R2s
+ [1] 0.1703272 0.1706549 0.1714880 0.1707549 0.1698028 0.1724866 0.1719331 0.1709343 0.1731627 0.1729511
+> mean(rmses)
+[1] 0.1335599
+> mean(R2s)
+[1] 0.1714496

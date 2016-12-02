@@ -27,8 +27,6 @@ global_rate_negative_words +
 i_rate_pos_glob_sent_polarity +
 i_min_avg_negative_pol +
 num_keywords +
-i_rate_pos_glob_sent_polarity +
-global_rate_negative_words +
 global_rate_positive_words +
 num_videos +
 max_negative_polarity +
